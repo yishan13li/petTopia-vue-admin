@@ -1,13 +1,13 @@
 <template>
   <div class="content-body">
       <div class="container-fluid">
-          <div class="container mt-4">
+          <div class="mt-2">
               <h2 class="mb-4">訂單管理</h2>
    <!-- 搜尋與篩選 -->
-   <div class="d-flex justify-content-between mb-3">
+   <div class=" mb-3">
             <table class="filter-table">
               <thead>
-              <tr class="tr_title">
+              <tr>
                 <td><label>搜尋訂單</label></td>
                 <td><label>搜尋商品</label></td>
                 <td><label>搜尋會員</label></td>
@@ -32,7 +32,7 @@
                 <td>
                   <select v-model="orderStatus" class="form-select">
                     <option value="all">全部</option>
-                    <option value="處理中">處理中</option>
+                    <option value="待處理">待處理</option>
                     <option value="待出貨">待出貨</option>
                     <option value="待收貨">待收貨</option>
                     <option value="配送中">配送中</option>
@@ -66,10 +66,10 @@
           <div class="mb-4">
             <label class="revise">批量更新狀態：</label>
             <select v-model="batchStatus" class="form-select d-inline-block w-auto">
-              <option value="none">請選擇狀態</option>
+              <option value="" disabled selected>請選擇狀態</option>
               <option value="待付款">待付款</option>
               <option value="已付款">已付款</option>
-              <option value="處理中">處理中</option>
+              <option value="待處理中">待處理</option>
               <option value="待出貨">待出貨</option>
               <option value="配送中">配送中</option>
               <option value="待收貨">待收貨</option>
@@ -212,7 +212,7 @@
       <table class="table table-hover">
       <thead class="tr_list_title">
         <tr>
-          <th><input type="checkbox" v-model="selectAll" @change="toggleAll"></th>
+          <th class="th_title"><input type="checkbox" v-model="selectAll" @change="toggleAll"></th>
           <th>訂單狀態</th>
           <th @click="sortBy('orderId')">訂單編號</th>
           <th @click="sortBy('orderDate')">訂單日期</th>
@@ -221,7 +221,6 @@
           <th>付款方式</th>
           <th>配送方式</th>
           <th @click="sortBy('totalAmount')">總金額</th>
-          <th>備註</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -230,14 +229,12 @@
           <td><input type="checkbox" v-model="selectedOrders" :value="orders.orderId"></td>
           <td>{{ order.orderStatus }}</td>
           <td>{{ order.orderId }}</td>
-          <td>{{ order.createdTime }}</td>
+          <td>{{ order.orderDate }}</td>
           <td>{{ order.memberId }}</td>
           <td>{{ order.paymentStatus }}</td>
           <td>{{ order.paymentCategory }}</td>
           <td>{{ order.shippingCategory }}</td>
           <td>$ {{ order.totalAmount }}</td>
-          <td>{{ order.orderDate }}</td>
-          <!-- <td>{{ order.note || '-' }}</td> -->
           <td>
             <button class="btn btn-sm btn-secondary" @click="viewDetail(order.orderId)">
               <i class="bi bi-eye"></i>
@@ -332,8 +329,32 @@
   .filter-table td {
       padding: 10px; /* 為每個單元格增加內部間距 */
   }
-  
-  
+
+  th{
+    font-size: 18px !important;
+  }
+
+  table {
+    text-align: center;
+}
+
+/* 確保表格邊框合併，減少間距 */
+.filter-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* 調整表格內格子的 padding，減少上下距離 */
+.filter-table td, .filter-table th {
+  padding: 0px;  /* 這裡可以根據需要調整大小 */
+}
+
+/* 表格整體靠左對齊 */
+.filter-table {
+  text-align: left;
+  margin-left: 0;
+}
+
   </style>
   
   
