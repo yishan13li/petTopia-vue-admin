@@ -9,6 +9,7 @@
               <thead>
               <tr class="tr_title">
                 <td><label>搜尋訂單</label></td>
+                <td><label>搜尋商品</label></td>
                 <td><label>搜尋會員</label></td>
                 <td><label>訂單狀態</label></td>
                 <td><label>付款狀態</label></td>
@@ -19,10 +20,14 @@
           <tbody>
               <tr>
                 <td>
-                  <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入訂單編號、商品名" style="width: 200px;">
+                  <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入訂單編號" style="width: 125px;">
                 </td>
                 <td>
-                  <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入會員編號" style="width: 150px;">
+                  <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入商品編號或名稱" style="width: 200px;">
+                </td>
+    
+                <td>
+                  <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入會員編號" style="width: 125px;">
                 </td>
                 <td>
                   <select v-model="orderStatus" class="form-select">
@@ -285,12 +290,8 @@
         </ul>
       </nav>
   
-  
           </div>
       </div>
-  
-  
-  
   
   </template>
   
