@@ -126,7 +126,7 @@
                                 aria-expanded="false"><i class="bi bi-cart"></i><span
                                     class="nav-text">商家管理</span></router-link>
                             <ul aria-expanded="false">
-                                <li><a href="table-bootstrap-basic.html">商家列表</a></li>
+                                <li><router-link to="/manage/vendor">商家列表</router-link></li>
                                 <li><a href="table-bootstrap-basic.html">認證申請管理</a></li>
                                 <li><router-link to="/manage/vendor">訂單管理</router-link></li>
 
