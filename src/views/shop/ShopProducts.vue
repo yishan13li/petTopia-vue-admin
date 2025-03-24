@@ -40,14 +40,14 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select v-model="productIsDiscount" class="form-select">
+                                    <select v-model="isProductDiscount" class="form-select">
                                         <option value="">全部</option>
                                         <option value="1">特價商品</option>
                                         <option value="0">原價商品</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select v-model="stockQuantityStatus" class="form-select">
+                                    <select v-model="stockQuantityLessThan" class="form-select">
                                         <option value="">全部</option>
                                         <option value="20">&lt; 20</option>
                                         <option value="50">&lt; 50</option>
@@ -212,29 +212,31 @@
             </div>
 
 
-            <!-- 訂單表格 -->
+            <!-- 商品表格 -->
             <table class="table table-hover">
                 <thead class="tr_list_title">
                     <tr>
                         <th class="th_title"><input type="checkbox" v-model="selectAll" @change="toggleAll"></th>
                         <th @click="sortBy('orderDetail.orderId')">
-                            上架狀態
+                            狀態
                             <!-- <i :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
                                 : 'fas fa-sort'"></i> -->
                         </th>
-                        <th>商品名稱</th>
+                        <th>名稱</th>
                         <th @click="sortBy('orderDetail.orderDate')">
-                            商品尺寸
+                            尺寸
                             <!-- <i
                                 :class="sortDirection === 'orderDetail.orderDate' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
                         <th @click="sortBy('orderDetail.memberId')">
-                            商品顏色
+                            顏色
                             <!-- <i
                                 :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
+                        <th>價錢</th>
+                        <th>特價</th>
                         <th @click="sortBy('orderDetail.memberId')">
-                            商品庫存
+                            庫存
                             <!-- <i
                                 :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
@@ -244,12 +246,12 @@
                 <tbody>
                     <tr v-for="product in productList" :key="product.id">
                         <td><input type="checkbox" v-model="selectedProducts" :value="product.id"></td>
-                        <td>{{ product.status }}</td>
+                        <td>{{ product.status ? "上架" : "下架" }}</td>
                         <td>{{ product.productDetail.name }}</td>
-                        <td>{{ product.productSize.name }}</td>
-                        <td>{{ product.productColor.name }}</td>
+                        <td>{{ product.productSize?.name ?? "-" }}</td>
+                        <td>{{ product.productColor?.name ?? "-" }}</td>
                         <td>$ {{ product.unitPrice }}</td>
-                        <td>$ {{ product.discountPrice }}</td>
+                        <td>$ {{ product.discountPrice ? product.discountPrice : "-" }}</td>
                         <td>{{ product.stockQuantity }}</td>
                         <td>
                             <button class="btn btn-sm btn-secondary" @click="viewProduct(product.id)">
@@ -287,21 +289,21 @@ import { ref, onMounted, watch, nextTick } from 'vue';
 import Paginate from 'vuejs-paginate-next';
 import axios from 'axios';
 
-import { fetchProducts } from '@/api/shop/productsApi';
-
 const PATH = import.meta.env.VITE_API_URL;
 
 // ===================== 初始載入 =====================
-const productList = ref([]);
-
+const productList = ref([]);    // 加載商品
+const selectedProducts = ref([]);    // 勾選的商品
 
 const searchProductKeyword = ref("");   // 關鍵字搜尋
 const selectedCategory = ref("所有商品");   // 商品分類
 const productStatus = ref("");  // 上架狀態
-const productIsDiscount = ref("");  // 特價狀態
-const stockQuantityStatus = ref("");  // 庫存狀態
+const isProductDiscount = ref("");  // 特價狀態
+const stockQuantityLessThan = ref("");  // 庫存狀態
 const startDate = ref('');
 const endDate = ref('');
+
+
 
 // 分頁
 const currentPage = ref(1); // 目前在第幾頁
@@ -318,7 +320,7 @@ onMounted(async () => {
 });
 
 // 監聽所有過濾選項
-watch([searchProductKeyword, selectedCategory, productStatus], () => {
+watch([searchProductKeyword, selectedCategory, productStatus, isProductDiscount], () => {
     onChangePage();
 });
 
@@ -342,6 +344,7 @@ function onChangePage(page) {
         "keyword": searchProductKeyword.value ? searchProductKeyword.value : null,
         "category": selectedCategory.value,
         "status": productStatus.value ? productStatus.value : null,
+        "isProductDiscount": isProductDiscount.value ? isProductDiscount.value : null,
     }
 
     getProducts(filterData);
@@ -361,12 +364,12 @@ async function getProducts(filterData) {
     })
         .then(response => {
             console.log(response.data);
-            // productList.value = response.data.productList;
+            productList.value = response.data.productList;
 
             // 分頁
-            // total.value = response.data.count;
-            // pages.value = Math.ceil(total.value / rows.value);
-            // lastPageRows.value = total.value % rows.value;
+            total.value = response.data.count;
+            pages.value = Math.ceil(total.value / rows.value);
+            lastPageRows.value = total.value % rows.value;
         })
 
         .catch(error => console.log("fetchProducts failed.", error));
