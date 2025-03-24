@@ -5,6 +5,8 @@ import router from './router/router';  // 引入 router
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 import '@fortawesome/fontawesome-free/css/all.css';
 
 axios.defaults.withCredentials = true; // 設定攜帶 cookie
