@@ -80,4 +80,16 @@ export const UpdateBatchOrders = async (updatedOrders) => {
   }
 };
 
-//刪除訂單
+// 刪除訂單
+export const deleteOneOrder = async (orderId) => {
+  try {
+    const response = await axios({
+      method: 'DELETE',
+      url: `${URL}/manage/shop/orders/${orderId}/delete`,  
+    });
+    return response.data; 
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    return null;  
+  }
+};
