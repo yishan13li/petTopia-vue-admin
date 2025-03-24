@@ -9,6 +9,7 @@
                         <thead>
                             <tr>
                                 <td><label>搜尋商品</label></td>
+                                <td><label>商品種類</label></td>
                                 <td><label>上架狀態</label></td>
                                 <td><label>特價狀態</label></td>
                                 <td><label>庫存狀態</label></td>
@@ -18,28 +19,39 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <input v-model="productKeyword" type="text" class="form-control"
-                                        placeholder="輸入商品編號或名稱" style="width: 200px;">
+                                    <input v-model="searchProductKeyword" type="text" class="form-control"
+                                        placeholder="輸入商品名稱" style="width: 200px;">
                                 </td>
                                 <td>
-                                    <select v-model="orderStatus" class="form-select">
-                                        <option value="">全部</option>
-                                        <option v-for="status in orderStatusList" :key="status" :value="status">{{
-                                            status }}</option>
+                                    <select v-model="selectedCategory" class="form-select">
+                                        <option value="所有商品">所有商品</option>
+                                        <option value="食品保健">食品保健</option>
+                                        <option value="日常用品">日常用品</option>
+                                        <option value="服飾">服飾</option>
+                                        <option value="玩具">玩具</option>
+                                        <option value="其他">其他</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select v-model="orderStatus" class="form-select">
+                                    <select v-model="productStatus" class="form-select">
                                         <option value="">全部</option>
-                                        <option v-for="status in orderStatusList" :key="status" :value="status">{{
-                                            status }}</option>
+                                        <option value="1">上架</option>
+                                        <option value="0">下架</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select v-model="orderStatus" class="form-select">
+                                    <select v-model="productIsDiscount" class="form-select">
                                         <option value="">全部</option>
-                                        <option v-for="status in orderStatusList" :key="status" :value="status">{{
-                                            status }}</option>
+                                        <option value="1">特價商品</option>
+                                        <option value="0">原價商品</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select v-model="stockQuantityStatus" class="form-select">
+                                        <option value="">全部</option>
+                                        <option value="20">&lt; 20</option>
+                                        <option value="50">&lt; 50</option>
+                                        <option value="100">&lt; 100</option>
                                     </select>
                                 </td>
                                 <td>
@@ -48,85 +60,32 @@
                                     <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
                                 </td>
                                 <div class="d-flex ">
-                                    <button @click="loadOrders" class="btn btn-primary">篩選</button>
+                                    <button @click="" class="btn btn-primary">篩選</button>
                                     <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
                                 </div>
                             </tr>
                         </tbody>
                     </table>
 
-                    <!-- 進階搜尋區塊 -->
-                    <div v-if="isAdvancedSearchVisible" class="advanced-search">
-                        <table class="filter-table mt-2">
-                            <thead>
-                                <tr>
-                                    <td><label>搜尋商品</label></td>
-                                    <td><label>搜尋會員</label></td>
-                                    <td><label>付款方式</label></td>
-                                    <td><label>配送方式</label></td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input v-model="productKeyword" type="text" class="form-control"
-                                            placeholder="輸入商品編號或名稱" style="width: 200px;">
-                                    </td>
-                                    <td>
-                                        <input v-model="memberId" type="text" class="form-control" placeholder="輸入會員編號"
-                                            style="width: 125px;">
-                                    </td>
-                                    <td>
-                                        <select v-model="paymentCategory" class="form-select">
-                                            <option value="">全部</option>
-                                            <option v-for="category in paymentCategoryList" :key="category"
-                                                :value="category">{{ category }}</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select v-model="shippingCategory" class="form-select">
-                                            <option value="">全部</option>
-                                            <option v-for="category in shippingCategoryList" :key="category"
-                                                :value="category">{{ category }}</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-3 ms-2">
-                        <!-- 進階搜尋按鈕 -->
-                        <button @click="isAdvancedSearchVisible = !isAdvancedSearchVisible" class="btn btn-link">
-                            {{ isAdvancedSearchVisible ? '隱藏進階搜尋' : '進階搜尋' }}
-                        </button>
-                    </div>
                 </div>
 
                 <div class="mb-4 ms-4">
                     <label class="revise">批量更新狀態：</label>
                     <select v-model="batchStatus" class="form-select d-inline-block w-auto">
                         <option value="" disabled selected>請選擇狀態</option>
-                        <option value="待付款">待付款</option>
-                        <option value="已付款">已付款</option>
-                        <option value="待處理中">待處理</option>
-                        <option value="待出貨">待出貨</option>
-                        <option value="配送中">配送中</option>
-                        <option value="待收貨">待收貨</option>
-                        <option value="已完成">已完成</option>
-                        <option value="已取消">已取消</option>
+                        <option value=1>上架</option>
+                        <option value=0>下架</option>
                     </select>
                     <button @click="batchUpdateOrders" class="btn btn-warning"
                         style="margin-left: 10px; margin-right: 10px;">批量更新</button>
 
 
-                    <button class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#addOrderModal">手動新增訂單</button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOrderModal">新增商品</button>
                 </div>
 
 
                 <!-- 新增訂單 Modal -->
-                <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel"
+                <!-- <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
@@ -249,7 +208,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
 
@@ -258,52 +217,48 @@
                 <thead class="tr_list_title">
                     <tr>
                         <th class="th_title"><input type="checkbox" v-model="selectAll" @change="toggleAll"></th>
-                        <th>訂單狀態</th>
                         <th @click="sortBy('orderDetail.orderId')">
-                            訂單編號
-                            <i
-                                :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
+                            上架狀態
+                            <!-- <i :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
+                                : 'fas fa-sort'"></i> -->
                         </th>
+                        <th>商品名稱</th>
                         <th @click="sortBy('orderDetail.orderDate')">
-                            訂單日期
-                            <i
-                                :class="sortDirection === 'orderDetail.orderDate' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
+                            商品尺寸
+                            <!-- <i
+                                :class="sortDirection === 'orderDetail.orderDate' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
                         <th @click="sortBy('orderDetail.memberId')">
-                            會員編號
-                            <i
-                                :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
+                            商品顏色
+                            <!-- <i
+                                :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
-                        <th>付款狀態</th>
-                        <th>付款方式</th>
-                        <th>配送方式</th>
-                        <th @click="sortBy('totalAmount')">
-                            總金額
-                            <i
-                                :class="sortDirection === 'totalAmount' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
+                        <th @click="sortBy('orderDetail.memberId')">
+                            商品庫存
+                            <!-- <i
+                                :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i> -->
                         </th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="order in orders" :key="order.orderId">
-                        <td><input type="checkbox" v-model="selectedOrders" :value="orders.orderId"></td>
-                        <td>{{ order.orderStatus }}</td>
-                        <td>{{ order.orderId }}</td>
-                        <td>{{ order.orderDate }}</td>
-                        <td>{{ order.memberId }}</td>
-                        <td>{{ order.paymentStatus }}</td>
-                        <td>{{ order.paymentCategory }}</td>
-                        <td>{{ order.shippingCategory }}</td>
-                        <td>$ {{ order.totalAmount }}</td>
+                    <tr v-for="product in productList" :key="product.id">
+                        <td><input type="checkbox" v-model="selectedProducts" :value="product.id"></td>
+                        <td>{{ product.status }}</td>
+                        <td>{{ product.productDetail.name }}</td>
+                        <td>{{ product.productSize.name }}</td>
+                        <td>{{ product.productColor.name }}</td>
+                        <td>$ {{ product.unitPrice }}</td>
+                        <td>$ {{ product.discountPrice }}</td>
+                        <td>{{ product.stockQuantity }}</td>
                         <td>
-                            <button class="btn btn-sm btn-secondary" @click="viewDetail(order.orderId)">
+                            <button class="btn btn-sm btn-secondary" @click="viewProduct(product.id)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-info" @click="editOrder(order.orderId)">
+                            <button class="btn btn-sm btn-info" @click="editProduct(product.id)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="deleteOrder(order.orderId)">
+                            <button class="btn btn-sm btn-danger" @click="deleteProduct(product.id)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -312,27 +267,153 @@
             </table>
 
             <!-- 顯示訂單詳情 Modal -->
-            <OrderDetailModal :isEditing="isEditing" :order-detail="orderDetail" :cities="cities"
-                @edit-order="editOrder" @save-order="saveOrder" />
+            <!-- <OrderDetailModal :isEditing="isEditing" :order-detail="orderDetail" :cities="cities"
+                @edit-order="editOrder" @save-order="saveOrder" /> -->
 
             <!-- 分頁 -->
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
-                    <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
-                    <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span>
-                    </li>
-                    <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
-                    <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
-                </ul>
-            </nav>
+            <div class="container" v-if="total > 0">
+                <Paginate v-model="currentPage" :page-count="pages" :initial-page="currentPage" :page-range="3"
+                    :margin-pages="1" :click-handler="onChangePage" :first-last-button="true">
+
+                </Paginate>
+            </div>
 
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
+import Paginate from 'vuejs-paginate-next';
+import axios from 'axios';
+
+import { fetchProducts } from '@/api/shop/productsApi';
+
+const PATH = import.meta.env.VITE_API_URL;
+
+// ===================== 初始載入 =====================
+const productList = ref([]);
+
+
+const searchProductKeyword = ref("");   // 關鍵字搜尋
+const selectedCategory = ref("所有商品");   // 商品分類
+const productStatus = ref("");  // 上架狀態
+const productIsDiscount = ref("");  // 特價狀態
+const stockQuantityStatus = ref("");  // 庫存狀態
+const startDate = ref('');
+const endDate = ref('');
+
+// 分頁
+const currentPage = ref(1); // 目前在第幾頁
+const pages = ref(0);   // 總共有幾頁
+const total = ref(0);   // 總共有幾筆
+const rows = ref(10);   // 每頁顯示幾筆
+const start = ref(0);   // 從第幾筆資料開始
+const lastPageRows = ref(0); // 最後一頁有幾筆
+
+// #region 初始化 & 監聽 =================================================
+
+onMounted(async () => {
+    onChangePage();
+});
+
+// 監聽所有過濾選項
+watch([searchProductKeyword, selectedCategory, productStatus], () => {
+    onChangePage();
+});
+
+// #endregion =================================================
+
+// #region Event function =================================================
+
+// 分頁切換 => 加載商品
+function onChangePage(page) {
+    if (page) {
+        currentPage.value = page;
+        start.value = (page - 1) * rows.value;
+    } else {
+        currentPage.value = 1;
+        start.value = 0;
+    }
+
+    const filterData = {
+        "start": start.value,
+        "rows": rows.value,
+        "keyword": searchProductKeyword.value ? searchProductKeyword.value : null,
+        "category": selectedCategory.value,
+        "status": productStatus.value ? productStatus.value : null,
+    }
+
+    getProducts(filterData);
+
+}
+
+// #endregion =================================================
+
+// #region general function =================================================
+
+// 加載商品
+async function getProducts(filterData) {
+    await axios({
+        method: 'get',
+        url: `${PATH}/manage/shop/products`,
+        params: filterData
+    })
+        .then(response => {
+            console.log(response.data);
+            // productList.value = response.data.productList;
+
+            // 分頁
+            // total.value = response.data.count;
+            // pages.value = Math.ceil(total.value / rows.value);
+            // lastPageRows.value = total.value % rows.value;
+        })
+
+        .catch(error => console.log("fetchProducts failed.", error));
+
+}
+
+
+// ===============sortby===========
+const sortDirection = ref('');
+const isAscending = ref(true);
+
+const sortBy = (field) => {
+    if (sortDirection.value === field) {
+        isAscending.value = !isAscending.value;
+    } else {
+        sortDirection.value = field;
+        isAscending.value = true;
+    }
+
+    productList.value.sort((a, b) => {
+        const aValue = a[field];
+        const bValue = b[field];
+
+        if (isAscending.value) {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+};
+
+// 操作
+function viewProduct() {
+
+}
+
+function editProduct() {
+
+}
+
+function deleteProduct() {
+
+}
+
+
+// #endregion =================================================
+
 
 </script>
 
