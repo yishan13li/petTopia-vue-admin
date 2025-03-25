@@ -8,11 +8,11 @@
         ***********************************-->
         <div class="nav-header">
             <div class="nav-header">
-                <a href="index.html" class="brand-logo">
+                <router-link to="/dashboard" class="brand-logo">
                     <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
                     <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
                     <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-                </a>
+                </router-link>
             </div>
 
             <div class="nav-control">
@@ -79,19 +79,20 @@
                             <li class="nav-item dropdown header-profile">
                                 <a class="nav-link" href="#" role="button" data-toggle="dropdown">
                                     <i class="mdi mdi-account"></i>
+                                    <span class="ml-2">{{ adminInfo.email }}</span>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right">
                                     <a href="./app-profile.html" class="dropdown-item">
                                         <i class="icon-user"></i>
-                                        <span class="ml-2">Profile </span>
+                                        <span class="ml-2">個人資料 </span>
                                     </a>
                                     <a href="./email-inbox.html" class="dropdown-item">
                                         <i class="icon-envelope-open"></i>
-                                        <span class="ml-2">Inbox </span>
+                                        <span class="ml-2">收件匣 </span>
                                     </a>
-                                    <a href="./page-login.html" class="dropdown-item">
+                                    <a href="#" class="dropdown-item" @click.prevent="handleLogout">
                                         <i class="icon-key"></i>
-                                        <span class="ml-2">Logout </span>
+                                        <span class="ml-2">登出 </span>
                                     </a>
                                 </div>
                             </li>
@@ -130,8 +131,90 @@
 </header>
 </template>
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
+const router = useRouter();
+const adminInfo = ref({});
 
+// 獲取管理員資訊
+const getAdminInfo = () => {
+    const info = localStorage.getItem('admin_info');
+    if (info) {
+        adminInfo.value = JSON.parse(info);
+    } else {
+        router.push('/login');
+    }
+};
 
+// 處理登出
+const handleLogout = async () => {
+    try {
+        const token = localStorage.getItem('admin_token');
+        await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/admin/logout`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_info');
+        
+        await Swal.fire({
+            icon: 'success',
+            title: '登出成功',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        
+        router.push('/login');
+    } catch (error) {
+        console.error('Logout error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '登出失敗',
+            text: '請稍後再試'
+        });
+    }
+};
+
+onMounted(() => {
+    getAdminInfo();
+});
 </script>
-<style></style>
+<style scoped>
+.header-profile .nav-link {
+    display: flex;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+</style>
