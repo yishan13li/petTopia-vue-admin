@@ -76,21 +76,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="vendor in vendors" :key="vendor.id">
-                            <td><input type="checkbox" v-model="selectedVendors" :value="vendor.id"></td>
-                            <td>{{ vendor.id }}</td>
-                            <td>{{ vendor.name }}</td>
-                            <td>{{ vendor.vendorCategory.name }}</td>
-                            <td>{{ vendor.contactEmail }}</td>
-                            <td>{{ vendor.contactPerson }}</td>
-                            <td>{{ vendor.eventCount }}</td>
-                            <td>{{ formatDate(vendor.registrationDate) }}</td>
-                            <td>{{ vendor.status ? '已通過' : '未通過' }}</td>
+                        <tr v-for="certification in certificationsWithTags" :key="certification.certificationId">
+                            <td><input type="checkbox" v-model="selectedVendors" :value="certification.id"></td>
+                            <td>{{ certification.vendor.id }}</td>
+                            <td>{{ certification.vendor.name }}</td>
+                            <td>{{ certification.certificationTags.tagName }}</td>
+                            <td>{{ formatDate(certification.requestDate) }}</td>
+                            <td>{{ certification.reason }}</td>
+                            <td>{{ certification.certificationTags.meetsStandard }}</td>
+                            <td>{{ certification.approvedDate }}</td>
+                            <td>{{ certification.certificationStatus }}</td>
                             <td>
-                                <button @click="toggleVendorStatus(vendor)"
-                                    :class="{ 'btn-success': !vendor.status, 'btn-danger': vendor.status }"
+                                <button @click="toggleVendorStatus(certification)"
+                                    :class="{ 'btn-success': !certification.status, 'btn-danger': certification.status }"
                                     class="btn btn-sm">
-                                    {{ vendor.status ? '設為未通過' : '設為已通過' }}
+                                    {{ certification.status }}
                                 </button>
                             </td>
                         </tr>
@@ -171,211 +171,27 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString("zh-TW") + " " + date.toLocaleTimeString("zh-TW", { hour: '2-digit', minute: '2-digit' });
 };
 
-const fetchAllcategory = async () => {
+// 定义响应数据的存储
+const certificationsWithTags = ref([]);
+
+// 定义获取数据的方法
+const getCertificationsWithTags = async () => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/admin/vendors/allcategory`)
-            .then(response => {
-                allcategory.value = response.data.allcategory;
-                console.log(allcategory.value)
-            })
-            .catch(error => {
-                console.error('獲取所有類別失敗:', error);
-            });
-
+        // 调用后端 API 获取认证数据
+        const response = await axios.get('http://localhost:8080/api/admin/certifications', {
+            headers: { 'Accept': 'application/json' }
+        }); // 这里的 URL 要根据实际的后端接口调整
+        certificationsWithTags.value = response.data;  // 将返回的数据存储到响应式变量中
+        console.log(certificationsWithTags.value)
     } catch (error) {
-        console.error('Error fetching Allcategory:', error);
+        console.error('获取认证申请及标签失败:', error); // 捕获错误并输出到控制台
     }
 };
 
-const fetchVendors = async () => {
-    try {
-        const response = await axios.get(`http://localhost:8080/api/admin/vendors`, {
-            withCredentials: true // 允許攜帶 Cookie
-        })
-            .then(response => {
-                vendors.value = response.data;
-                console.log(vendors.value)
-                nextTick(() => {
-
-                    initializeDataTable();  // 重新初始化 DataTable
-                });
-            })
-            .catch(error => {
-                console.error('獲取評論資料失敗:', error);
-            });
-
-    } catch (error) {
-        console.error('Error fetching vendors:', error);
-    }
-};
-const searchVendors = async () => {
-    const params = {};
-
-    // 根據篩選條件加上相應的參數
-    if (vendorCategoryFilter.value !== 'all') {
-        params.categoryId = vendorCategoryFilter.value;
-    }
-
-    if (vendorStatusFilter.value !== 'all') {
-        params.status = vendorStatusFilter.value;
-    }
-    console.log('筛选条件:', params); // 打印筛选条件
-    try {
-        const response = await axios.get(`${VITE_API_URL}/api/admin/vendors`, { params });
-        vendors.value = response.data;
-        console.log(vendors.value);
-        if (!dataTable) return;
-
-        // 刪除舊的 DataTable 實例
-        dataTable.destroy();
-        dataTable = null;
-
-        // 重新加載數據並初始化表格
-
-        nextTick(() => {
-            initializeDataTable();  // 重新初始化 DataTable
-        });
-        // nextTick(() => {
-
-        //     // 確保資料已經更新，然後再初始化 DataTable
-        //     if (vendors.value.length > 0) {
-        //         setTimeout(() => {
-        //             initializeDataTable(); // 延遲執行初始化
-        //         }, 300);
-        //     }
-        // });
-
-    } catch (error) {
-        console.error('獲取商家資料失敗:', error);
-    }
-};
-
-const clearFilters = () => {
-    vendorCategoryFilter.value = '';  // 清空類別篩選
-    vendorStatusFilter.value = '';    // 清空狀態篩選
-    searchVendors();  // 重新加載數據
-};
-
-const updateDataTable = async () => {
-    if (!dataTable) return;
-
-    searchVendors()
-
-};
-
-
-const toggleVendorStatus = async (vendor) => {
-    // 切換狀態
-    const newStatus = !vendor.status;
-
-    try {
-        // 向後端發送請求更新狀態
-        const response = await axios.put(`${VITE_API_URL}/api/admin/vendors/status/${vendor.id}`, {
-            status: newStatus
-        });
-
-        if (response.status === 200) {
-            // 更新成功後，直接在前端切換狀態
-            vendor.status = newStatus;
-            alert(response.data); // 提示更新成功
-        }
-    } catch (error) {
-        console.error('Error updating vendor status:', error);
-        alert('更新失敗');
-    }
-};
-
-
-const batchUpdateVendors = async () => {
-    if (selectedVendors.value.length === 0) {
-        alert("請選擇至少一個商家");
-        return;
-    }
-    if (!batchStatus.value) {
-        alert("請選擇狀態");
-        return;
-    }
-
-    const targetStatus = batchStatus.value === '已通過'; // 轉換為布林值
-
-    // 取得選中商家的資料
-    const selectedVendorData = vendors.value.filter(vendor => selectedVendors.value.includes(vendor.id));
-
-    // 找出需要更新的商家（目前狀態不同於目標狀態）
-    const vendorsToUpdate = selectedVendorData.filter(vendor => vendor.status !== targetStatus);
-
-    if (vendorsToUpdate.length === 0) {
-        alert(`所選商家狀態已經是「${batchStatus.value}」，無需更新！`);
-        return;
-    }
-
-    try {
-        const requestData = {
-            vendorIds: vendorsToUpdate.map(vendor => vendor.id), // 只更新需要更新的商家
-            status: targetStatus
-        };
-        const response = await axios.put(`${VITE_API_URL}/api/admin/vendors/status/bulk`, requestData);
-        alert(response.data);
-        fetchVendors(); // 重新載入數據
-        selectedVendors.value = [];
-    } catch (error) {
-        console.error('Error updating vendors:', error);
-        alert('更新失敗');
-    }
-};
-
-
-
-const updateAllVendors = async (status) => {
-    if (vendors.value.length === 0) {
-        alert("目前沒有商家資料");
-        return;
-    }
-
-    if (!confirm(`確定要將所有商家狀態改為「${status}」嗎？`)) {
-        return;
-    }
-
-    try {
-        const requestData = {
-            vendorIds: vendors.value.map(vendor => vendor.id),  // 取得所有商家的 ID
-            status: status === '已通過'  // 轉換為布林值
-        };
-
-        const response = await axios.put(`${VITE_API_URL}/api/admin/vendors/status/bulk`, requestData);
-        alert(response.data);
-
-        if (!dataTable) return;
-
-        // 刪除舊的 DataTable 實例
-        dataTable.destroy();
-        dataTable = null;
-
-        // 重新加載數據並初始化表格
-        fetchVendors();  // 重新載入數據
-        nextTick(() => {
-            initializeDataTable();  // 重新初始化 DataTable
-        });
-    } catch (error) {
-        console.error('Error updating vendors:', error);
-        alert('更新失敗');
-    }
-};
-
-watch(selectedVendors, (newValue) => {
-    selectAll.value = newValue.length === vendors.value.length && vendors.value.length > 0;
-    console.log(selectAll.value)
+// 在组件加载时获取认证数据
+onMounted(() => {
+    getCertificationsWithTags();
+    initializeDataTable()
 });
 
-
-
-onMounted(async () => {
-    await fetchAllcategory()
-    await fetchVendors()
-    nextTick(() => {
-        setTimeout(() => {
-            initializeDataTable();  // 稍微延迟初始化 DataTable
-        }, 300);  // 延迟 100 毫秒再初始化
-    });
-})
 </script>
