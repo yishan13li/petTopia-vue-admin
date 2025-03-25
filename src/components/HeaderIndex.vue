@@ -77,22 +77,18 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown header-profile">
-                                <a class="nav-link" href="#" role="button" data-toggle="dropdown">
-                                    <i class="mdi mdi-account"></i>
-                                    <span class="ml-2">{{ adminInfo.email }}</span>
+                                <a class="nav-link" href="javascript:void()" role="button" data-bs-toggle="dropdown">
+                                    <div class="header-info">
+                                        <img src="/admin_static/images/profile/profile.png" alt="管理員頭像">
+                                        <div class="header-details">
+                                            <h5>{{ adminStore.getAdminName }}</h5>
+                                            <span>{{ adminStore.getAdminRole }}</span>
+                                        </div>
+                                    </div>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a href="./app-profile.html" class="dropdown-item">
-                                        <i class="icon-user"></i>
-                                        <span class="ml-2">個人資料 </span>
-                                    </a>
-                                    <a href="./email-inbox.html" class="dropdown-item">
-                                        <i class="icon-envelope-open"></i>
-                                        <span class="ml-2">收件匣 </span>
-                                    </a>
-                                    <a href="#" class="dropdown-item" @click.prevent="handleLogout">
-                                        <i class="icon-key"></i>
-                                        <span class="ml-2">登出 </span>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a href="javascript:void()" class="dropdown-item" @click="handleLogout">
+                                        <i class="bi bi-box-arrow-right"></i> 登出
                                     </a>
                                 </div>
                             </li>
@@ -114,12 +110,12 @@
                     <li><router-link to="/manage/shop/orders" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                                 class="bi bi-cart"></i><span class="nav-text">商城管理</span></router-link>
                         <ul aria-expanded="false">
-                            <li><a href="table-bootstrap-basic.html">商品列表</a></li>
-                            <li><a href="table-bootstrap-basic.html">庫存管理</a></li>
+                            <li><router-link to="/manage/shop/products">商品列表</router-link></li>
+                            <li><router-link to="/manage/shop/inventory">庫存管理</router-link></li>
                             <li><router-link to="/manage/shop/orders">訂單管理</router-link></li>
-                            <li><a href="table-datatable-basic.html">優惠券管理</a></li>
-                            <li><a href="table-datatable-basic.html">客服管理</a></li>
-                            <li><a href="table-datatable-basic.html">報表分析</a></li>
+                            <li><router-link to="/manage/shop/coupons">優惠券管理</router-link></li>
+                            <li><router-link to="/manage/shop/customer-service">客服管理</router-link></li>
+                            <li><router-link to="/manage/shop/reports">報表分析</router-link></li>
                         </ul>
                     </li>
                     <li class="nav-label"></li>
@@ -135,58 +131,39 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useAdminStore } from '@/stores/adminStore'
 
 const router = useRouter();
-const adminInfo = ref({});
+const adminStore = useAdminStore()
 
-// 獲取管理員資訊
-const getAdminInfo = () => {
-    const info = localStorage.getItem('admin_info');
-    if (info) {
-        adminInfo.value = JSON.parse(info);
-    } else {
-        router.push('/login');
-    }
-};
-
-// 處理登出
 const handleLogout = async () => {
-    try {
-        const token = localStorage.getItem('admin_token');
-        await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/admin/logout`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_info');
-        
-        await Swal.fire({
-            icon: 'success',
-            title: '登出成功',
-            timer: 1500,
-            showConfirmButton: false
-        });
-        
-        router.push('/login');
-    } catch (error) {
-        console.error('Logout error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: '登出失敗',
-            text: '請稍後再試'
-        });
+  try {
+    const token = localStorage.getItem('adminToken')
+    if (token) {
+      await axios.post(`${API_URL}/api/admin/logout`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
     }
-};
+    
+    // 清除 store 中的資訊
+    adminStore.clearAdminInfo()
+    
+    // 清除本地存儲
+    localStorage.removeItem('adminToken')
+    
+    // 跳轉到登入頁
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
+}
 
-onMounted(() => {
-    getAdminInfo();
-});
+// 在 onMounted 中獲取管理員資訊
+onMounted(async () => {
+  await adminStore.fetchAdminInfo()
+})
 </script>
 <style scoped>
 .header-profile .nav-link {

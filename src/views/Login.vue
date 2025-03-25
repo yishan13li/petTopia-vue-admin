@@ -43,37 +43,49 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
+import { useAdminStore } from '@/stores/adminStore'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
+const adminStore = useAdminStore()
+const hasInitialized = ref(false)
 
 const handleLogin = async () => {
   try {
-    // 先檢查是否需要初始化 SA 帳號
-    if (email.value === 'sa@pettopia.com' && !localStorage.getItem('sa_initialized')) {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/admin/init-sa`);
-      localStorage.setItem('sa_initialized', 'true');
+    // 檢查是否為超級管理員初始化
+    if (email.value === 'sa@pettopia.com' && !hasInitialized.value) {
+      const initResponse = await axios.post(`${API_URL}/api/admin/init-sa`)
+      if (initResponse.data.message) {
+        hasInitialized.value = true
+        Swal.fire({
+          title: '初始化成功',
+          text: '超級管理員帳號已建立',
+          icon: 'success',
+          confirmButtonText: '確定'
+        })
+        return
+      }
     }
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/admin/login`,
-      {
-        email: email.value,
-        password: password.value
-      },
-      { withCredentials: true }
-    );
+    const response = await axios.post(`${API_URL}/api/admin/login`, {
+      email: email.value,
+      password: password.value
+    })
 
-    if (response.status === 200 && response.data.token) {
+    if (response.data.token) {
       // 儲存 token
-      localStorage.setItem('admin_token', response.data.token);
-      // 儲存管理員資訊
-      localStorage.setItem('admin_info', JSON.stringify({
-        id: response.data.adminId,
+      localStorage.setItem('adminToken', response.data.token)
+      
+      // 儲存管理員資訊到 Pinia store
+      adminStore.setAdminInfo({
         email: response.data.email,
-        role: response.data.role
-      }));
+        role: response.data.role,
+        isAuthenticated: response.data.isAuthenticated,
+        adminId: response.data.adminId
+      })
 
       await Swal.fire({
         icon: 'success',
@@ -81,19 +93,21 @@ const handleLogin = async () => {
         text: '歡迎回來，管理員',
         timer: 1500,
         showConfirmButton: false
-      });
+      })
 
-      router.push('/dashboard');
+      // 確保在跳轉前已經儲存了 token
+      await new Promise(resolve => setTimeout(resolve, 100))
+      router.push('/dashboard')
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error)
     Swal.fire({
       icon: 'error',
       title: '登入失敗',
-      text: error.response?.data?.error || '請檢查您的帳號密碼是否正確',
-    });
+      text: error.response?.data?.error || '請檢查您的帳號密碼是否正確'
+    })
   }
-};
+}
 </script>
 
 <style scoped>

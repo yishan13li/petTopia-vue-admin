@@ -47,10 +47,12 @@
                                     <span class="to-text mx-2">到</span>
                                     <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
                                 </td>
-                                <div class="d-flex ">
-                                    <button @click="loadOrders" class="btn btn-primary">篩選</button>
-                                    <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
-                                </div>
+                                <td>
+                                    <div class="d-flex">
+                                        <button @click="loadOrders" class="btn btn-primary">篩選</button>
+                                        <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
