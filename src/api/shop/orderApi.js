@@ -26,6 +26,11 @@ export const fetchManageOrders = async (filters) => {
       url: `${URL}/manage/shop/orders`,
       params: filters
     });
+
+    if (response.status === 204) {
+      return { status: 204 };  
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error fetching orders:', error);

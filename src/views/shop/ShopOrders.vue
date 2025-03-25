@@ -223,29 +223,34 @@
       <!-- 顯示訂單詳情 Modal -->
       <OrderDetailModal :order-detail="orderDetail" :cities="cities" />
 
+      <!-- 顯示查無資料訊息 -->
+      <div v-if="message" class="no-data-message">
+        {{ message }}
+      </div>
+
       <!-- 分頁 -->
       <nav>
-  <ul class="pagination">
-    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-      <button @click="goToPage(1)" class="page-link">«</button>
-    </li>
-    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-      <button @click="prevPage" class="page-link">‹</button>
-    </li>
-    <li class="page-item">
-      <span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span>
-    </li>
-    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-      <button @click="nextPage" class="page-link">›</button>
-    </li>
-    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-      <button @click="goToPage(totalPages)" class="page-link">»</button>
-    </li>
-  </ul>
-  <div class="total-records">
-    <span>總共 <strong> &nbsp{{ totalElements }}&nbsp </strong> 筆 資料</span>
-  </div>
-</nav>
+        <ul class="pagination">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button @click="goToPage(1)" class="page-link">«</button>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button @click="prevPage" class="page-link">‹</button>
+          </li>
+          <li class="page-item">
+            <span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <button @click="nextPage" class="page-link">›</button>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <button @click="goToPage(totalPages)" class="page-link">»</button>
+          </li>
+        </ul>
+        <div class="total-records">
+          <span>總共 <strong> &nbsp{{ totalElements }}&nbsp </strong> 筆 資料</span>
+        </div>
+      </nav>
 
     </div>
   </div>
@@ -296,6 +301,7 @@ const paymentCategory = ref('');
 const shippingCategory = ref('');
 const startDate = ref('');
 const endDate = ref('');
+const message = ref('');
 
 //分頁資訊
 const currentPage = ref(1); // 當前頁數
@@ -318,7 +324,18 @@ const loadOrders = async () => {
       page: currentPage.value,   // 使用當前頁數
       size: pageSize.value,      // 每頁大小
     };
+
     const data = await fetchManageOrders(filters);
+
+    // 如果回傳的狀態是 204，顯示查無資料
+    if (data.status === 204) {
+      orders.value = []; // 清空資料
+      totalPages.value = 1; // 重設總頁數
+      totalElements.value = 0; // 重設總資料數
+      message.value = "查無相關資料"; // 設定訊息
+      return;  // 不再繼續執行
+    }
+
     if (data) {
       orders.value = data.manageOrders.content;
       totalPages.value = data.manageOrders.totalPages; // 更新總頁數
@@ -638,7 +655,7 @@ const deleteOrder = async (orderId) => {
     });
 
     if (result.isConfirmed) {
-      const deleteResult = await deleteOneOrder(orderId); 
+      const deleteResult = await deleteOneOrder(orderId);
 
       if (deleteResult) {
         orders.value = orders.value.filter(order => order.orderId !== orderId);
@@ -752,9 +769,17 @@ option {
 }
 
 .pagination .page-item.disabled .page-link {
-  background-color: #f5f3f3;  /* 淺灰色背景 */
-  border-color: #e9e7e7;      /* 邊框顏色 */
-  cursor: not-allowed;        /* 禁用時的光標 */
+  background-color: #f5f3f3;
+  /* 淺灰色背景 */
+  border-color: #e9e7e7;
+  /* 邊框顏色 */
+  cursor: not-allowed;
+  /* 禁用時的光標 */
 }
 
+.no-data-message {
+  text-align: center;
+  font-size: larger;
+  padding: 100px;
+}
 </style>
