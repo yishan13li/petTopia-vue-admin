@@ -4,6 +4,7 @@ import Home from '@/views/Home.vue';  // 引入 Home.vue
 import Login from '@/views/Login.vue';
 import ShopOrders from '@/views/shop/ShopOrders.vue';
 import ManageVendor from '@/views/vendor/ManageVendor.vue';
+import ManageCertification from '@/views/vendor/ManageCertification.vue';
 
 const routes = [
     {
@@ -20,6 +21,11 @@ const routes = [
         path: '/manage/shop/orders',
         name: 'ShopOrders',
         component: ShopOrders
+    },
+    {
+        path: '/manage/vendor/certification',
+        name: 'ManageCertification',
+        component: ManageCertification
     },
     {
         path: '/manage/vendor',

@@ -66,12 +66,11 @@
                             </th>
                             <th>商家ID</th>
                             <th>名稱</th>
-                            <th>類別</th>
-                            <th>Email</th>
-                            <th>聯絡人</th>
-                            <th>活動總數</th>
-                            <th>等級</th>
-                            <th>註冊日期</th>
+                            <th>申請標語</th>
+                            <th>申請日期</th>
+                            <th>原因</th>
+                            <th>是否符合</th>
+                            <th>審核時間</th>
                             <th>狀態</th>
                             <th>操作</th>
                         </tr>
@@ -85,7 +84,6 @@
                             <td>{{ vendor.contactEmail }}</td>
                             <td>{{ vendor.contactPerson }}</td>
                             <td>{{ vendor.eventCount }}</td>
-                            <td>{{ vendor.vendorLevel }}</td>
                             <td>{{ formatDate(vendor.registrationDate) }}</td>
                             <td>{{ vendor.status ? '已通過' : '未通過' }}</td>
                             <td>
