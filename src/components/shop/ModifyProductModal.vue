@@ -104,6 +104,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const PATH = import.meta.env.VITE_API_URL;
 
@@ -119,6 +120,9 @@ const props = defineProps({
     },
 
 });
+
+const emit = defineEmits(["updateProductList"]);
+
 
 // 修改商品 body
 const product = ref({});
@@ -179,7 +183,24 @@ function onClickSubmit() {
     })
         .then(response => {
             // console.log(response.data);
-            messages.value = response.data.messages;
+            // messages.value = response.data.messages;
+            Swal.fire({
+                icon: 'success',
+                title: '修改成功',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            // **關閉 Modal**
+            const modalElement = document.getElementById('modifyProductModal'); // 確保 ID 正確
+            if (modalElement) {
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide(); // 關閉 Modal
+                }
+            }
+
+            emit("updateProductList");
+
         })
 
         .catch(error => console.log(error));

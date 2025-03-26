@@ -59,10 +59,10 @@
                                     <span class="to-text mx-2">到</span>
                                     <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
                                 </td>
-                                <div class="d-flex">
+                                <td class="d-flex">
                                     <button @click="onChangePage" class="btn btn-primary">篩選</button>
                                     <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
-                                </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -121,12 +121,12 @@
                     <tr v-for="product in productList" :key="product.id">
                         <td><input type="checkbox" v-model="selectedProducts" :value="product.id"
                                 @change="onChangeClickBox"></td>
-                        <td>{{ product.status ? "上架" : "下架" }}</td>
+                        <td :class="{ 'text-danger': !product.status }">{{ product.status ? "上架" : "下架" }}</td>
                         <td>{{ product.productDetail.name }}</td>
                         <td>{{ product.productSize?.name ?? "-" }}</td>
                         <td>{{ product.productColor?.name ?? "-" }}</td>
                         <td>$ {{ product.unitPrice }}</td>
-                        <td>$ {{ product.discountPrice ? product.discountPrice : "-" }}</td>
+                        <td :class="{ 'text-danger': product.discountPrice }">$ {{ product.discountPrice ? product.discountPrice : "-" }}</td>
                         <td>{{ product.stockQuantity }}</td>
                         <td>{{ dayjs(product.createdTime).format("YYYY-MM-DD") }}</td>
                         <td>
@@ -145,12 +145,10 @@
             </table>
 
             <!-- 新增商品 Modal -->
-            <AddProductModal ref="addProductModalRef" />
+            <AddProductModal ref="addProductModalRef" @updateProductList="onChangePage(currentPage)"/>
 
             <!-- 修改商品 Modal -->
-            <ModifyProductModal :modify-product="modifyProduct" />
-
-
+            <ModifyProductModal :modify-product="modifyProduct" @updateProductList="onChangePage(currentPage)" />
 
             <!-- 分頁 -->
             <div class="container" v-if="total > 0">
@@ -306,6 +304,11 @@ const toggleAll = () => {
 
 // 批量更新
 const batchUpdateProducts = async () => {
+    if (selectedProducts.value.length === 0) {
+        batchUpdateMsg.value = "請選擇商品";
+        return;
+    }
+
     if (!batchStatus.value) {
         batchUpdateMsg.value = "請選擇狀態";
         return;
@@ -341,6 +344,8 @@ const batchUpdateProducts = async () => {
 
 // 新增商品
 function addProduct() {
+    batchUpdateMsg.value = "";
+
     addProductModalRef.value.showModal();
 
 }
@@ -376,6 +381,7 @@ const sortBy = (field) => {
 const modifyProduct = ref({});
 
 function editProduct(productId) {
+    batchUpdateMsg.value = "";
 
     axios({
         method: 'get',
@@ -403,8 +409,36 @@ function editProduct(productId) {
 
 }
 
-function deleteProduct() {
+function deleteProduct(productId) {
+    Swal.fire({
+        title: '確定要刪除嗎?',
+        text: "刪除後將無法恢復!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '確定',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            axios({
+                method: 'get',
+                url: `${PATH}/manage/shop/products/api/deleteProduct`,
+                params: {
+                    productId: productId
+                }
 
+            })
+                .then(response => {
+                    // console.log(response.data);
+                    onChangePage(currentPage.value);
+
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    });
 }
 
 

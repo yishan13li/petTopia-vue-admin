@@ -1,6 +1,6 @@
 <template>
     <!-- 新增商品 Modal -->
-    <div ref="addProductModalRef" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel"
+    <div ref="addProductModalRef" id="addProductModal" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -83,10 +83,9 @@
                             </div>
                         </div>
 
-
-
                         <button type="submit" class="btn btn-success" @click="onClickSubmit">新增商品</button>
                         <span class="text-danger ms-3">{{ messages }}</span>
+
                     </form>
                 </div>
             </div>
@@ -98,6 +97,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const PATH = import.meta.env.VITE_API_URL;
 
@@ -124,8 +124,18 @@ const product = ref({
     }
 });
 
+const emit = defineEmits(["updateProductList"]);
+
 onMounted(async () => {
     addProductModal.value = new bootstrap.Modal(addProductModalRef.value);
+
+    // const modalElement = document.getElementById("addProductModal");
+
+    // if (modalElement) {
+    //     modalElement.addEventListener("hide.bs.modal", () => {
+    //         emit("updateProductList"); // 當 Modal 關閉時，通知父元件
+    //     });
+    // }
 });
 
 defineExpose({
@@ -172,6 +182,18 @@ function onClickSubmit() {
         .then(response => {
             // console.log(response.data);
             messages.value = response.data.messages;
+            if (messages.value == "新增商品成功"){
+                Swal.fire({
+                icon: 'success',
+                title: '新增商品成功',
+                showConfirmButton: false,
+                timer: 1500, 
+                }).then(() => {
+                messages.value = "";
+                emit("updateProductList");
+            });
+            }
+
         })
 
         .catch(error => console.log(error));
