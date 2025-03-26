@@ -681,14 +681,10 @@ html {
 
 .filter-table tr {
   margin-bottom: 10px;
-  /* 為每行增加間隔 */
 }
 
-
-/* 或者增加行的內部間距 */
 .filter-table td {
   padding: 3px 5px;
-  /* 為每個單元格增加內部間距 */
 }
 
 th {
@@ -699,19 +695,15 @@ table {
   text-align: center;
 }
 
-/* 確保表格邊框合併，減少間距 */
 .filter-table {
   border-collapse: collapse;
 }
 
-/* 調整表格內格子的 padding，減少上下距離 */
 .filter-table td,
 .filter-table th {
   padding: 0px 20px;
-  /* 這裡可以根據需要調整大小 */
 }
 
-/* 表格整體靠左對齊 */
 .filter-table {
   text-align: left;
   margin-left: 0;
@@ -742,19 +734,15 @@ option {
 
 .revise-select {
   display: block;
-  /* 讓 select 變成區塊元素 */
   margin: 0 auto;
-  /* 自動水平置中 */
   text-align: center;
-  /* 讓內部文字置中 */
   text-align-last: center;
-  /* 讓選中的 <option> 也置中 */
 }
 
 .pagination .page-item.disabled .page-link {
-  background-color: #f5f3f3;  /* 淺灰色背景 */
-  border-color: #e9e7e7;      /* 邊框顏色 */
-  cursor: not-allowed;        /* 禁用時的光標 */
+  background-color: #f5f3f3;  
+  border-color: #e9e7e7;      
+  cursor: not-allowed;      
 }
 
 </style>
