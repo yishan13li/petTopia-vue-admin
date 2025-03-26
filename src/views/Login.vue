@@ -51,25 +51,9 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const adminStore = useAdminStore()
-const hasInitialized = ref(false)
 
 const handleLogin = async () => {
   try {
-    // 檢查是否為超級管理員初始化
-    if (email.value === 'sa@pettopia.com' && !hasInitialized.value) {
-      const initResponse = await axios.post(`${API_URL}/api/admin/init-sa`)
-      if (initResponse.data.message) {
-        hasInitialized.value = true
-        Swal.fire({
-          title: '初始化成功',
-          text: '超級管理員帳號已建立',
-          icon: 'success',
-          confirmButtonText: '確定'
-        })
-        return
-      }
-    }
-
     const response = await axios.post(`${API_URL}/api/admin/login`, {
       email: email.value,
       password: password.value
