@@ -25,7 +25,9 @@ export const useAdminStore = defineStore('admin', {
       try {
         const token = localStorage.getItem('adminToken')
         if (!token) {
-          throw new Error('未找到管理員令牌')
+          this.isAuthenticated = false
+          this.adminInfo = null
+          return
         }
 
         const response = await axios.get(`${API_URL}/api/admin/current-admin`, {

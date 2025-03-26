@@ -62,6 +62,12 @@ const handleLogin = async () => {
     if (response.data.token) {
       // 儲存 token
       localStorage.setItem('adminToken', response.data.token)
+      console.log('登入成功，Token:', response.data.token)
+      console.log('管理員資訊:', {
+        email: response.data.email,
+        role: response.data.role,
+        adminId: response.data.adminId
+      })
       
       // 儲存管理員資訊到 Pinia store
       adminStore.setAdminInfo({

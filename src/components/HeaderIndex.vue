@@ -77,7 +77,7 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown header-profile">
-                                <a class="nav-link" href="javascript:void()" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
                                     <div class="header-info">
                                         <img src="/admin_static/images/profile/profile.png" alt="管理員頭像">
                                         <div class="header-details">
@@ -87,7 +87,7 @@
                                     </div>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
-                                    <a href="javascript:void()" class="dropdown-item" @click="handleLogout">
+                                    <a href="#" class="dropdown-item" @click.prevent="handleLogout">
                                         <i class="bi bi-box-arrow-right"></i> 登出
                                     </a>
                                 </div>
@@ -133,6 +133,8 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useAdminStore } from '@/stores/adminStore'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
 const router = useRouter();
 const adminStore = useAdminStore()
 
@@ -140,29 +142,62 @@ const handleLogout = async () => {
   try {
     const token = localStorage.getItem('adminToken')
     if (token) {
-      await axios.post(`${API_URL}/api/admin/logout`, {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      try {
+        const response = await axios.post(`${API_URL}/api/admin/logout`, {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        console.log('登出請求成功:', response.data)
+      } catch (error) {
+        console.error('登出請求失敗:', error)
+      }
     }
     
     // 清除 store 中的資訊
     adminStore.clearAdminInfo()
+    console.log('已清除管理員資訊')
     
     // 清除本地存儲
     localStorage.removeItem('adminToken')
+    console.log('已清除管理員令牌')
     
-    // 跳轉到登入頁
-    router.push('/login')
+    // 顯示成功訊息
+    await Swal.fire({
+      icon: 'success',
+      title: '登出成功',
+      text: '感謝您的使用',
+      timer: 1500,
+      showConfirmButton: false
+    })
+    console.log('已顯示登出成功提示')
+    
+    // 使用 window.location 進行跳轉
+    window.location.href = '/login'
+    console.log('已跳轉到登入頁面')
   } catch (error) {
-    console.error('Logout error:', error)
+    console.error('登出過程發生錯誤:', error)
+    // 即使發生錯誤，也要確保清除狀態並跳轉
+    adminStore.clearAdminInfo()
+    localStorage.removeItem('adminToken')
+    window.location.href = '/login'
   }
 }
 
 // 在 onMounted 中獲取管理員資訊
 onMounted(async () => {
-  await adminStore.fetchAdminInfo()
+  // 檢查是否有 token
+  const token = localStorage.getItem('adminToken')
+  if (token) {
+    try {
+      // 獲取管理員資訊
+      await adminStore.fetchAdminInfo()
+    } catch (error) {
+      console.error('獲取管理員資訊失敗:', error)
+      // 如果獲取失敗，清除 token
+      localStorage.removeItem('adminToken')
+    }
+  }
 })
 </script>
 <style scoped>
