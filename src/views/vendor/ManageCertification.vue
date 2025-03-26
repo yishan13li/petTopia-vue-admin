@@ -9,8 +9,8 @@
                     <table class="filter-table">
                         <thead>
                             <tr class="tr_title">
-                                <td><label>店家類型</label></td>
-                                <td><label>狀態</label></td>
+                                <td><label>是否符合</label></td>
+                                <td><label>審核狀態</label></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -19,17 +19,17 @@
                                     <select v-model="vendorCategoryFilter" class="form-select">
                                         <option value="">請選擇</option>
                                         <option value="all">全部</option>
-                                        <option v-for="category in allcategory" :key="category.id" :value="category.id">
-                                            {{
-                                                category.name }}</option>
+                                        <option value="符合">符合</option>
+                                        <option value="符合">不符合</option>
                                     </select>
                                 </td>
                                 <td>
                                     <select v-model="vendorStatusFilter" class="form-select">
                                         <option value="">請選擇</option>
                                         <option value="all">全部</option>
-                                        <option value="false">未通過</option>
-                                        <option value="true">已通過</option>
+                                        <option value="申請中">申請中</option>
+                                        <option value="已認證">已認證</option>
+                                        <option value="未通過">未通過</option>
                                     </select>
                                 </td>
                                 <td><button @click="updateDataTable" class="btn btn-warning">篩選</button></td>
@@ -45,14 +45,15 @@
                     <label class="revise">批次修改商家狀態：</label>
                     <select v-model="batchStatus" class="form-select d-inline-block w-auto">
                         <option value="">請選擇狀態</option>
+                        <option value="申請中">申請中</option>
+                        <option value="已認證">已認證</option>
                         <option value="未通過">未通過</option>
-                        <option value="已通過">已通過</option>
                     </select>
                     <button @click="batchUpdateVendors" class="btn btn-warning">批量更新</button>
 
                 </div>
                 <div>
-                    <button @click="updateAllVendors('已通過')" class="btn btn-success btn-sm">全部通過</button>
+                    <button @click="updateAllVendors('已通過')" class="btn btn-success btn-sm">全部認證</button>
                     <button @click="updateAllVendors('未通過')" class="btn btn-danger btn-sm">全部未通過</button>
 
                 </div>
@@ -76,15 +77,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="certification in certificationsWithTags" :key="certification.certificationId">
+                        <tr v-for="certification in filteredCertifications" :key="certification.certificationId">
                             <td><input type="checkbox" v-model="selectedVendors" :value="certification.id"></td>
                             <td>{{ certification.vendor.id }}</td>
                             <td>{{ certification.vendor.name }}</td>
-                            <td>{{ certification.certificationTags.tagName }}</td>
+                            <td>{{ certification.certificationTags[0]?.tagName || '無標籤' }}</td>
                             <td>{{ formatDate(certification.requestDate) }}</td>
-                            <td>{{ certification.reason }}</td>
-                            <td>{{ certification.certificationTags.meetsStandard }}</td>
-                            <td>{{ certification.approvedDate }}</td>
+                            <td>{{ certification.reason || '尚無原因' }}</td>
+                            <td>{{ certification.certificationTags[0].meetsStandard ? '符合' : '不符合' }}</td>
+                            <td>{{ certification.approvedDate || '尚未審核' }}</td>
                             <td>{{ certification.certificationStatus }}</td>
                             <td>
                                 <button @click="toggleVendorStatus(certification)"
@@ -178,7 +179,7 @@ const certificationsWithTags = ref([]);
 const getCertificationsWithTags = async () => {
     try {
         // 调用后端 API 获取认证数据
-        const response = await axios.get('http://localhost:8080/api/admin/certifications', {
+        const response = await axios.get('http://localhost:8080/api/admin/certification', {
             headers: { 'Accept': 'application/json' }
         }); // 这里的 URL 要根据实际的后端接口调整
         certificationsWithTags.value = response.data;  // 将返回的数据存储到响应式变量中
@@ -188,10 +189,42 @@ const getCertificationsWithTags = async () => {
     }
 };
 
-// 在组件加载时获取认证数据
-onMounted(() => {
+const filteredCertifications = computed(() => {
+    return certificationsWithTags.value.filter(certification => {
+        // 篩選 "是否符合"
+        if (vendorCategoryFilter.value && vendorCategoryFilter.value !== 'all') {
+            const meetsStandard = certification.certificationTags[0]?.meetsStandard ? '符合' : '不符合';
+            if (vendorCategoryFilter.value !== meetsStandard) {
+                return false;
+            }
+        }
+
+        // 篩選 "審核狀態"
+        if (vendorStatusFilter.value && vendorStatusFilter.value !== 'all') {
+            if (certification.certificationStatus !== vendorStatusFilter.value) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+});
+
+const updateDataTable = () => {
+    // 你可以在此更新篩選後的數據，或重新初始化 DataTable
+};
+
+const clearFilters = () => {
+    vendorCategoryFilter.value = '';
+    vendorStatusFilter.value = '';
+    // 可以重新加載所有數據
     getCertificationsWithTags();
-    initializeDataTable()
+};
+
+// 在组件加载时获取认证数据
+onMounted(async () => {
+    await getCertificationsWithTags();  // 等待数据加载
+    initializeDataTable();  // 数据加载后再初始化表格
 });
 
 </script>
