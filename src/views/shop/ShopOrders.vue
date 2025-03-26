@@ -757,18 +757,15 @@ option {
 }
 
 .pagination .page-item.disabled .page-link {
-<<<<<<< HEAD
-  background-color: #f5f3f3;  
-  border-color: #e9e7e7;      
-  cursor: not-allowed;      
-=======
+  background-color: #f5f3f3;
+  border-color: #e9e7e7;
+  cursor: not-allowed;
   background-color: #f5f3f3;
   /* 淺灰色背景 */
   border-color: #e9e7e7;
   /* 邊框顏色 */
   cursor: not-allowed;
   /* 禁用時的光標 */
->>>>>>> 87500f9d15e0da9ba09e6eab8cf66848559c736b
 }
 
 .no-data-message {

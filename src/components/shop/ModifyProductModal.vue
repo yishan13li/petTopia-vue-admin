@@ -1,6 +1,6 @@
 <template>
-    <!-- 新增商品 Modal -->
-    <div ref="addProductModalRef" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel"
+    <!-- 修改商品 Modal -->
+    <div id="modifyProductModal" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -8,7 +8,7 @@
                     <h5 class="modal-title">新增商品</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" v-if="product">
                     <form @submit.prevent="submitOrder">
 
                         <div class="row">
@@ -38,7 +38,7 @@
                         <div class="mt-3 mb-3">
                             <label class="form-label">名稱</label>
                             <input type="text" class="form-control text-start" v-model="product.productDetail.name"
-                                @blur="onBlurName">
+                                disabled>
                         </div>
 
                         <div class="mb-3">
@@ -49,12 +49,14 @@
 
                         <div class="mb-3">
                             <label class="form-label">尺寸</label>
-                            <input type="text" class="form-control text-start" v-model="product.productSize.name">
+                            <input type="text" class="form-control text-start" v-model="product.productSize.name"
+                                disabled>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">顏色</label>
-                            <input type="text" class="form-control text-start" v-model="product.productColor.name">
+                            <input type="text" class="form-control text-start" v-model="product.productColor.name"
+                                disabled>
                         </div>
 
                         <div class="mb-3">
@@ -81,12 +83,16 @@
                                 <p>選擇的圖片：</p>
                                 <img :src="selectedImage.preview" class="img-thumbnail" width="100" height="100">
                             </div>
+                            <div v-else class="mt-2">
+                                <p>選擇的圖片：</p>
+                                <img :src="`${PATH}/manage/shop/products/api/modifyProduct/getProductPhoto?productId=${product.id}`"
+                                    class="img-thumbnail" width="100" height="100">
+                            </div>
                         </div>
 
-
-
-                        <button type="submit" class="btn btn-success" @click="onClickSubmit">新增商品</button>
+                        <button type="submit" class="btn btn-success" @click="onClickSubmit">修改商品</button>
                         <span class="text-danger ms-3">{{ messages }}</span>
+
                     </form>
                 </div>
             </div>
@@ -101,53 +107,52 @@ import axios from 'axios';
 
 const PATH = import.meta.env.VITE_API_URL;
 
-const addProductModalRef = ref(null);
-const addProductModal = ref(null);
-
 const selectedImage = ref(null);
 
 const messages = ref("");
 
-// 新增商品 body
-const product = ref({
-    unitPrice: 0,
-    discountPrice: 0,
-    stockQuantity: 0,
-    photo: "",
-    status: "1",
-    productSize: { name: "" },
-    productColor: { name: "" },
-    productDetail: {
-        name: "",
-        description: "",
-        productCategory: { name: "" },
-    }
+const props = defineProps({
+
+    modifyProduct: {
+        type: Object,
+        required: true,
+    },
+
 });
+
+// 修改商品 body
+const product = ref({});
 
 onMounted(async () => {
-    addProductModal.value = new bootstrap.Modal(addProductModalRef.value);
+
 });
 
-defineExpose({
-    showModal,
-    hideModal
-});
+// 監聽 props 變化，確保資料正確更新
+watch(() => props.modifyProduct, (newProduct) => {
+    selectedImage.value = null;
+    messages.value = "";
 
-// 如果有同名商品直接獲取Description
-function onBlurName() {
-    axios({
-        method: 'get',
-        url: `${PATH}/manage/shop/products/api/insertProduct/getDescription`,
-        params: { productDetailName: product.value.productDetail.name }
+    if (newProduct) {
+        product.value = {
+            id: newProduct.id || 0,
+            unitPrice: newProduct.unitPrice || 0,
+            discountPrice: newProduct.discountPrice || 0,
+            stockQuantity: newProduct.stockQuantity || 0,
+            photo: newProduct.photo || "",
+            status: newProduct.status == true ? "1" : "0",
+            productSize: { name: newProduct.productSize?.name || "" },
+            productColor: { name: newProduct.productColor?.name || "" },
+            productDetail: {
+                name: newProduct.productDetail?.name || "",
+                description: newProduct.productDetail?.description || "",
+                productCategory: { name: newProduct.productDetail?.productCategory?.name || "" },
+            }
+        };
+    }
 
-    })
-        .then(response => {
-            // console.log(response.data.description);
-            product.value.productDetail.description = response.data.description;
-        })
+}, { immediate: true }); // `immediate: true` 讓 watch 立即執行一次
 
-        .catch(error => console.log(error));
-}
+
 
 // 送出form
 function onClickSubmit() {
@@ -161,10 +166,13 @@ function onClickSubmit() {
     if (selectedImage.value?.file) {
         formData.append("photo", selectedImage.value.file);
     }
+    else {
+        formData.append("photo", null);
+    }
 
     axios({
         method: 'post',
-        url: `${PATH}/manage/shop/products/api/insertProduct`,
+        url: `${PATH}/manage/shop/products/api/modifyProduct`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData
 
@@ -192,20 +200,6 @@ const handleImageUpload = (event) => {
     }
 
 };
-
-function showModal() {
-    addProductModal.value.show();
-    product.value.productDetail.productCategory.name = "食品保健";
-    product.value.status = "1";
-    selectedImage.value = null;
-    messages.value = "";
-
-}
-
-function hideModal() {
-    addProductModal.value.hide();
-}
-
 
 
 </script>

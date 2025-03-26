@@ -82,133 +82,6 @@
                     <span class="text-danger ms-3">{{ batchUpdateMsg }}</span>
                 </div>
 
-
-                <!-- 新增商品 Modal -->
-                <!-- <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">新增訂單</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form @submit.prevent="submitOrder">
-                                    <div class="mb-3">
-                                        <label class="form-label">會員ID</label>
-                                        <input type="number" class="form-control" v-model="customerId" required>
-                                        <div class="mt-2">會員編號: {{ customerName }}</div>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">商品ID</label>
-                                        <input type="number" class="form-control" v-model="productId" required>
-                                        <div class="mt-2">
-                                            商品名稱: {{ productName }}<br>
-                                            規格: {{ productSpecs }}<br>
-                                            價格: ${{ productPrice }}
-                                        </div>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">數量</label>
-                                        <input type="number" class="form-control" v-model="quantity" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <button type="button" class="btn btn-primary" @click="addProduct">新增商品</button>
-                                    </div>
-
-
-                                    <h5>已選商品</h5>
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>商品名稱</th>
-                                                <th>規格</th>
-                                                <th>價格</th>
-                                                <th>數量</th>
-                                                <th>總金額</th>
-                                                <th>操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(item, index) in orderItems" :key="index">
-                                                <td>{{ item.name }}</td>
-                                                <td>{{ item.specs }}</td>
-                                                <td>${{ item.price }}</td>
-                                                <td>{{ item.quantity }}</td>
-                                                <td>${{ item.total }}</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-danger btn-sm"
-                                                        @click="removeProduct(index)">刪除</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">商品總金額</label>
-                                        <input type="text" class="form-control" :value="productTotal" readonly>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">運費</label>
-                                        <input type="number" class="form-control" v-model="shippingFee">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">優惠折扣</label>
-                                        <input type="number" class="form-control" v-model="discount">
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">訂單總金額</label>
-                                        <input type="text" class="form-control" :value="totalAmount" readonly>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">收件人姓名</label>
-                                        <input type="text" class="form-control" v-model="receiverName" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">收件人電話</label>
-                                        <input type="text" class="form-control" v-model="receiverPhone" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">收件人地址</label>
-                                        <input type="text" class="form-control" v-model="receiverAddress" required>
-                                    </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label">配送方式</label>
-                                        <select class="form-control" v-model="shippingMethod">
-                                            <option value="宅配">宅配</option>
-                                            <option value="快遞">快遞</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">付款方式</label>
-                                        <select class="form-control" v-model="paymentMethod">
-                                            <option value="貨到付款">貨到付款</option>
-                                            <option value="線上付款">線上付款</option>
-                                        </select>
-                                    </div>
-
-
-                                    <button type="submit" class="btn btn-success">提交訂單</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-
             </div>
 
 
@@ -257,9 +130,9 @@
                         <td>{{ product.stockQuantity }}</td>
                         <td>{{ dayjs(product.createdTime).format("YYYY-MM-DD") }}</td>
                         <td>
-                            <button class="btn btn-sm btn-secondary" @click="viewProduct(product.id)">
+                            <!-- <button class="btn btn-sm btn-secondary" @click="viewProduct(product.id)">
                                 <i class="bi bi-eye"></i>
-                            </button>
+                            </button> -->
                             <button class="btn btn-sm btn-info" @click="editProduct(product.id)">
                                 <i class="bi bi-pencil"></i>
                             </button>
@@ -273,6 +146,11 @@
 
             <!-- 新增商品 Modal -->
             <AddProductModal ref="addProductModalRef" />
+
+            <!-- 修改商品 Modal -->
+            <ModifyProductModal :modify-product="modifyProduct" />
+
+
 
             <!-- 分頁 -->
             <div class="container" v-if="total > 0">
@@ -294,6 +172,7 @@ import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 
 import AddProductModal from '@/components/shop/AddProductModal.vue';
+import ModifyProductModal from '@/components/shop/ModifyProductModal.vue';
 
 const PATH = import.meta.env.VITE_API_URL;
 
@@ -368,7 +247,7 @@ function onChangePage(page) {
         "endDate": endDate.value ? endDate.value : null,
     }
 
-    console.log(filterData);
+    // console.log(filterData);
 
     getProducts(filterData);
 
@@ -444,7 +323,7 @@ const batchUpdateProducts = async () => {
 
     })
         .then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             batchUpdateMsg.value = "批量更新成功";
             selectedProducts.value = [];
             selectAll.value = false;
@@ -465,6 +344,8 @@ function addProduct() {
     addProductModalRef.value.showModal();
 
 }
+
+
 
 // ===============sortby===========
 const sortDirection = ref('');
@@ -490,12 +371,35 @@ const sortBy = (field) => {
     });
 };
 
-// 操作
-function viewProduct() {
 
-}
+// 修改
+const modifyProduct = ref({});
 
-function editProduct() {
+function editProduct(productId) {
+
+    axios({
+        method: 'get',
+        url: `${PATH}/manage/shop/products/api/modifyProduct/getProduct`,
+        params: {
+            productId: productId
+        }
+
+    })
+        .then(response => {
+            // console.log(response.data);
+            modifyProduct.value = response.data;
+
+            const modalElement = document.getElementById('modifyProductModal');
+            if (modalElement) {
+                const myModal = new bootstrap.Modal(modalElement); // 改用 new Modal()
+                myModal.show();
+            }
+
+        })
+        .catch(error => {
+            console.log(error);
+        });
+
 
 }
 
