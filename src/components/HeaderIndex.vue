@@ -118,6 +118,12 @@
                             <li><router-link to="/manage/shop/reports">報表分析</router-link></li>
                         </ul>
                     </li>
+                    <li><router-link to="/manage/members" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+                                class="bi bi-people"></i><span class="nav-text">會員管理</span></router-link>
+                        <ul aria-expanded="false">
+                            <li><router-link to="/manage/members">會員列表</router-link></li>
+                        </ul>
+                    </li>
                     <li class="nav-label"></li>
                 </ul>
             </div>

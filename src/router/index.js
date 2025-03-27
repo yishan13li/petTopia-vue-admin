@@ -4,6 +4,7 @@ import Login from '@/views/Login.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import ShopOrders from '@/views/shop/ShopOrders.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
+import MemberManagement from '@/views/member/MemberManagement.vue'
 import PlaceholderPage from '@/components/PlaceholderPage.vue'
 
 const routes = [
@@ -21,6 +22,12 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/members',
+    name: 'MemberManagement',
+    component: MemberManagement,
     meta: { requiresAuth: true }
   },
   {
