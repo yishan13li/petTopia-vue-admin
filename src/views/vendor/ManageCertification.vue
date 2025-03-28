@@ -4,66 +4,11 @@
             <div class="container mt-4">
                 <h2 class="mb-4">商家管理</h2>
 
-                <!-- 搜尋與篩選 -->
-                <div class="d-flex justify-content-between mb-3">
-                    <table class="filter-table">
-                        <thead>
-                            <tr class="tr_title">
-                                <td><label>店家類型</label></td>
-                                <td><label>狀態</label></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <select v-model="vendorCategoryFilter" class="form-select">
-                                        <option value="">請選擇</option>
-                                        <option value="all">全部</option>
-                                        <option v-for="category in allcategory" :key="category.id" :value="category.id">
-                                            {{
-                                                category.name }}</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select v-model="vendorStatusFilter" class="form-select">
-                                        <option value="">請選擇</option>
-                                        <option value="all">全部</option>
-                                        <option value="false">未通過</option>
-                                        <option value="true">已通過</option>
-                                    </select>
-                                </td>
-                                <td><button @click="updateDataTable" class="btn btn-warning">篩選</button></td>
-                                <td><button @click="clearFilters" class="btn btn-secondary">取消篩選</button></td>
-
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- 批量修改 -->
-                <div>
-                    <label class="revise">批次修改商家狀態：</label>
-                    <select v-model="batchStatus" class="form-select d-inline-block w-auto">
-                        <option value="">請選擇狀態</option>
-                        <option value="未通過">未通過</option>
-                        <option value="已通過">已通過</option>
-                    </select>
-                    <button @click="batchUpdateVendors" class="btn btn-warning">批量更新</button>
-
-                </div>
-                <div>
-                    <button @click="updateAllVendors('已通過')" class="btn btn-success btn-sm">全部通過</button>
-                    <button @click="updateAllVendors('未通過')" class="btn btn-danger btn-sm">全部未通過</button>
-
-                </div>
-
                 <!-- 商家列表 -->
-                <table class="table table-bordered table-hover shadow-sm rounded" id="vendorsTable"
-                    :key="vendors.length">
+                <table class="table table-bordered table-hover shadow-sm rounded" id="vendorsTable">
                     <thead>
                         <tr>
-                            <th>
-                            </th>
+                            <th></th>
                             <th>商家ID</th>
                             <th>名稱</th>
                             <th>申請標語</th>
@@ -76,73 +21,176 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="certification in certificationsWithTags" :key="certification.certificationId">
-                            <td><input type="checkbox" v-model="selectedVendors" :value="certification.id"></td>
+                        <tr v-for="certification in filteredCertifications" :key="certification.certificationId">
+                            <td><input type="checkbox" :value="certification.id"></td>
                             <td>{{ certification.vendor.id }}</td>
                             <td>{{ certification.vendor.name }}</td>
-                            <td>{{ certification.certificationTags.tagName }}</td>
+                            <td>{{ certification.certificationTags[0]?.tagName || '無標籤' }}</td>
                             <td>{{ formatDate(certification.requestDate) }}</td>
-                            <td>{{ certification.reason }}</td>
-                            <td>{{ certification.certificationTags.meetsStandard }}</td>
-                            <td>{{ certification.approvedDate }}</td>
+                            <td>{{ certification.reason || '尚無原因' }}</td>
+                            <td>{{ certification.certificationTags[0]?.meetsStandard ? '符合' : '不符合' }}</td>
+                            <td>{{ formatDate(certification.approvedDate) || '尚未審核' }}</td>
                             <td>{{ certification.certificationStatus }}</td>
                             <td>
-                                <button @click="toggleVendorStatus(certification)"
-                                    :class="{ 'btn-success': !certification.status, 'btn-danger': certification.status }"
-                                    class="btn btn-sm">
-                                    {{ certification.status }}
+                                <!-- 只有在状态为 "申請中" 时才显示按钮 -->
+                                <button v-if="certification.certificationStatus === '申請中'"
+                                    @click="openModal(certification, '已認證')" class="btn btn-success btn-sm">
+                                    認證
                                 </button>
+                                <button v-if="certification.certificationStatus === '申請中'"
+                                    @click="openModal(certification, '未通過')" class="btn btn-danger btn-sm">
+                                    未通過
+                                </button>
+                                <!-- 如果已经认证，按钮不显示 -->
+                                <span v-if="certification.certificationStatus === '已認證'" class="text-success"></span>
+                                <!-- 如果未通过，按钮不显示 -->
+                                <span v-if="certification.certificationStatus === '未通過'" class="text-danger"></span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- 分頁 -->
-                <!-- <nav>
-                    <ul class="pagination">
-                        <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
-                        <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
-                        <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }}
-                                頁</span></li>
-                        <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
-                        <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
-                    </ul>
-                </nav> -->
+                <!-- 模态框: 用于输入原因 -->
+                <div v-if="showModal" class="modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">输入原因</h5>
+                                <button type="button" class="close" @click="closeModal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form @submit.prevent="submitCertificationStatus">
+                                    <div class="form-group">
+                                        <label for="reason">原因</label>
+                                        <textarea v-model="reason" id="reason" class="form-control" rows="3"
+                                            required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">提交</button>
+                                    <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import axios from 'axios';
-import DataTable from 'datatables.net-dt'
-import 'datatables.net-dt/css/dataTables.dataTables.css'
+import DataTable from 'datatables.net-dt';
+import 'datatables.net-dt/css/dataTables.dataTables.css';
 
-let dataTable = null
-const allcategory = ref([]);
-const searchQuery = ref("");
-const currentPage = ref(1);
-const totalPages = ref(1);
-const VITE_API_URL = import.meta.env.VITE_API_URL;
-const vendors = ref([]);
-const selectedVendors = ref([]);
-const selectAll = ref(false);
-const batchStatus = ref('');
-const vendorCategoryFilter = ref('');
-const vendorStatusFilter = ref('');
+let dataTable = null;
+const showModal = ref(false);
+const reason = ref('');
+let currentCertification = null;
+let currentStatus = '';
+// 定义响应数据的存储
+const certificationsWithTags = ref([]);
+const selectedFilters = ref({
+    certificationStatus: 'all' // 默认选择全部
+});
 
+// 打开模态框
+const openModal = (certification, status) => {
+    currentCertification = certification;
+    currentStatus = status;
+    showModal.value = true;
+};
+
+// 关闭模态框
+const closeModal = () => {
+    showModal.value = false;
+    reason.value = '';  // 清空原因
+};
+
+// 提交状态更新
+const submitCertificationStatus = async () => {
+    if (!reason.value) {
+        alert('請輸入原因');
+        return;
+    }
+
+    try {
+        // 发送 PUT 请求更新认证状态
+        await axios.put(`http://localhost:8080/api/admin/certification/status/update/${currentCertification.certificationId}`, null, {
+            params: {
+                status: currentStatus,
+                reason: reason.value
+            }
+        });
+
+        // 更新认证状态后关闭模态框
+        alert('状态更新成功');
+        closeModal();
+        // 重新获取数据，或者根据你的逻辑刷新认证列表
+        await getCertificationsWithTags();
+    } catch (error) {
+        console.error('状态更新失败:', error);
+        alert('更新失败，请稍后再试');
+    }
+};
+
+// 定义获取数据的方法
+const getCertificationsWithTags = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/admin/certification', {
+            headers: { 'Accept': 'application/json' }
+        });
+        certificationsWithTags.value = response.data;
+        certificationsWithTags.value.sort((a, b) => {
+            if (a.certificationStatus === '申請中' && b.certificationStatus !== '申請中') {
+                return -1; // 将“申請中”排在前面
+            } else if (a.certificationStatus !== '申請中' && b.certificationStatus === '申請中') {
+                return 1;  // 将“申請中”排在前面
+            }
+            return 0; // 如果两者状态相同，则不排序
+        });
+
+        console.log(certificationsWithTags.value);
+    } catch (error) {
+        console.error('获取认证申请及标签失败:', error);
+    }
+};
+
+// 在组件加载时获取认证数据
+onMounted(async () => {
+    await getCertificationsWithTags();
+    initializeDataTable();
+});
+
+const updateCertificationStatus = async (certificationId, status) => {
+    try {
+        const response = await axios.put(`http://localhost:8080/api/admin/certification/status/update/${certificationId}`, null, {
+            params: {
+                status: status,
+                reason: reson
+            }
+        });
+        console.log("状态更新成功:", response.data);
+        // 更新界面上的认证状态
+    } catch (error) {
+        console.error("状态更新失败:", error);
+    }
+};
+
+// 初始化 DataTable
 const initializeDataTable = () => {
     nextTick(() => {
         if (dataTable) {
-            dataTable.destroy()  // 销毁旧实例
-            dataTable = null;  // 清空 DataTable 變數
+            dataTable.destroy();  // 销毁当前实例
+            dataTable = null;
         }
         dataTable = new DataTable('#vendorsTable', {
-            pageLength: 5, // 每頁顯示 5 筆資料
-            lengthMenu: [5, 10, 20, 50],
-            searching: true, // 啟用搜尋
-            ordering: true,  // 啟用排序
+            pageLength: 20,
+            lengthMenu: [20, 30, 40, 50],
+            searching: true,
+            ordering: true,
             responsive: true,
             language: {
                 search: "搜尋：",
@@ -161,37 +209,73 @@ const initializeDataTable = () => {
                     last: "最後一頁"
                 }
             }
-        })
-    })
-}
+        });
+    });
+};
 
-// 📅 日期格式化函數
+// 日期格式化函數
 const formatDate = (dateString) => {
+    if (!dateString) { // 如果 dateString 是 null 或 undefined，返回 '尚未審核'
+        return null;
+    }
     let date = new Date(dateString);
     return date.toLocaleDateString("zh-TW") + " " + date.toLocaleTimeString("zh-TW", { hour: '2-digit', minute: '2-digit' });
 };
 
-// 定义响应数据的存储
-const certificationsWithTags = ref([]);
-
-// 定义获取数据的方法
-const getCertificationsWithTags = async () => {
-    try {
-        // 调用后端 API 获取认证数据
-        const response = await axios.get('http://localhost:8080/api/admin/certifications', {
-            headers: { 'Accept': 'application/json' }
-        }); // 这里的 URL 要根据实际的后端接口调整
-        certificationsWithTags.value = response.data;  // 将返回的数据存储到响应式变量中
-        console.log(certificationsWithTags.value)
-    } catch (error) {
-        console.error('获取认证申请及标签失败:', error); // 捕获错误并输出到控制台
-    }
-};
-
-// 在组件加载时获取认证数据
-onMounted(() => {
-    getCertificationsWithTags();
-    initializeDataTable()
+// 过滤后的认证数据
+const filteredCertifications = computed(() => {
+    return certificationsWithTags.value.filter(certification => {
+        // 过滤 "審核狀態"
+        if (selectedFilters.value.certificationStatus !== 'all' && certification.certificationStatus !== selectedFilters.value.certificationStatus) {
+            return false;
+        }
+        return true;
+    });
 });
 
+// 触发筛选的函数
+const applyFilter = () => {
+    // 在应用筛选后，手动刷新 DataTable，使其加载筛选后的所有数据
+    initializeDataTable();
+};
+
+// 清除筛选的函数
+const clearFilter = () => {
+    selectedFilters.value = {
+        certificationStatus: 'all'
+    };
+    initializeDataTable();  // 清除筛选后重新初始化 DataTable
+};
 </script>
+<style scoped>
+.modal {
+    display: block;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+}
+
+.modal-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.modal-content {
+    width: 400px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header .close {
+    font-size: 1.5rem;
+    color: #000;
+}
+</style>
