@@ -1,367 +1,630 @@
 <template>
-<div class="content-body">
+  <div class="content-body">
     <div class="container-fluid">
-        <div class="container mt-4">
-            <h2 class="mb-4">訂單管理</h2>
- <!-- 搜尋與篩選 -->
- <div class="d-flex justify-content-between mb-3">
+      <div class="mt-2">
+        <h2 class="mb-4">訂單管理</h2>
+        <div class="mb-3">
+
           <table class="filter-table">
             <thead>
-            <tr class="tr_title">
-              <td><label>搜尋訂單</label></td>
-              <td><label>訂單狀態</label></td>
-              <td><label>日期範圍</label></td>
-              <td></td> 
-            </tr>
+              <tr>
+                <td><label>搜尋訂單</label></td>
+                <td><label>訂單狀態</label></td>
+                <td><label>付款狀態</label></td>
+                <td><label>日期範圍</label></td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input v-model="searchOrderId" type="text" class="form-control" placeholder="輸入訂單編號"
+                    style="width: 125px;">
+                </td>
+                <td>
+                  <select v-model="orderStatus" class="form-select">
+                    <option value="">全部</option>
+                    <option v-for="status in orderStatusList" :key="status" :value="status">{{ status }}</option>
+                  </select>
+                </td>
+                <td>
+                  <select v-model="paymentStatus" class="form-select">
+                    <option value="">全部</option>
+                    <option v-for="status in paymentStatusList" :key="status" :value="status">{{ status }}</option>
+                  </select>
+                </td>
+                <td>
+                  <input v-model="startDate" type="date" class="form-control d-inline-block w-auto">
+                  <span class="to-text mx-2">到</span>
+                  <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
+                </td>
+                <td>
+                  <div class="d-flex">
+                    <button @click="loadOrders" class="btn btn-primary">篩選</button>
+                    <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 進階搜尋區塊 -->
+          <div v-if="isAdvancedSearchVisible" class="advanced-search">
+            <table class="filter-table mt-2">
+              <thead>
+                <tr>
+                  <td><label>搜尋商品</label></td>
+                  <td><label>搜尋會員</label></td>
+                  <td><label>付款方式</label></td>
+                  <td><label>配送方式</label></td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <input v-model="productKeyword" type="text" class="form-control" placeholder="輸入商品編號或名稱"
+                      style="width: 200px;">
+                  </td>
+                  <td>
+                    <input v-model="memberId" type="text" class="form-control" placeholder="輸入會員編號"
+                      style="width: 125px;">
+                  </td>
+                  <td>
+                    <select v-model="paymentCategory" class="form-select">
+                      <option value="">全部</option>
+                      <option v-for="category in paymentCategoryList" :key="category" :value="category">{{ category }}
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <select v-model="shippingCategory" class="form-select">
+                      <option value="">全部</option>
+                      <option v-for="category in shippingCategoryList" :key="category" :value="category">{{ category }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 ms-2">
+            <!-- 進階搜尋按鈕 -->
+            <button @click="isAdvancedSearchVisible = !isAdvancedSearchVisible" class="btn btn-link">
+              {{ isAdvancedSearchVisible ? '隱藏進階搜尋' : '進階搜尋' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4 ms-4">
+          <label class="revise">批量更新狀態：</label>
+          <select v-model="batchStatus" class="form-select d-inline-block w-auto">
+            <option value="" disabled selected>請選擇狀態</option>
+            <option value="已付款">已付款</option>
+            <option value="配送中">配送中</option>
+            <option value="待收貨">待收貨</option>
+            <option value="已完成">已完成</option>
+            <option value="已取消">已取消</option>
+          </select>
+          <button @click="batchUpdateOrders" class="btn btn-warning"
+            style="margin-left: 10px; margin-right: 10px;">批量更新</button>
+        </div>
+      </div>
+
+      <!-- 訂單表格 -->
+      <table class="table table-hover">
+        <thead class="tr_list_title">
+          <tr>
+            <th class="th_title"><input type="checkbox" v-model="selectAll" @change="toggleAll"></th>
+            <th>訂單狀態</th>
+            <th @click="sortBy('orderDetail.orderId')">
+              訂單編號
+              <i :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
+                : 'fas fa-sort'"></i>
+            </th>
+            <th @click="sortBy('orderDetail.orderDate')">
+              訂單日期
+              <i :class="sortDirection === 'orderDetail.orderDate'
+                ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
+                : 'fas fa-sort'">
+              </i>
+
+
+            </th>
+            <th @click="sortBy('orderDetail.memberId')">
+              會員編號
+              <i :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
+                : 'fas fa-sort'"></i>
+            </th>
+            <th>付款狀態</th>
+            <th>付款方式</th>
+            <th>配送方式</th>
+            <th @click="sortBy('totalAmount')">
+              總金額
+              <i :class="sortDirection === 'totalAmount' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
+                : 'fas fa-sort'"></i>
+            </th>
+            <th>備註</th>
+            <th>操作</th>
+          </tr>
         </thead>
         <tbody>
-            <tr>
-              <td>
-                <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入訂單編號、商品名或會員">
-              </td>
-              <td>
-                <select v-model="orderStatus" class="form-select">
-                  <option value="all">全部</option>
-                  <option value="待處理">待處理</option>
-                  <option value="待出貨">待出貨</option>
-                  <option value="待收貨">待收貨</option>
-                  <option value="配送中">配送中</option>
-                  <option value="已完成">已完成</option>
-                  <option value="已取消">已取消</option>
-                </select>
-              </td>
-              <td>
-                <select v-model="paymentStatus" class="form-select">
-                  <option value="all">全部</option>
-                  <option value="已付款">已付款</option>
-                  <option value="待付款">待付款</option>
-                  <option value="付款失敗">付款失敗</option>
-                </select>
-              </td>
-              <td>
-                <input v-model="startDate" type="date" class="form-control d-inline-block w-auto">
-                <span class="to-text">到</span>
-                <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
-              </td>
-              <td>
-                <button @click="filterOrders" class="btn btn-primary">篩選</button>
-              </td>
-            </tr>
+          <tr v-for="order in orders" :key="order.orderId">
+            <td><input type="checkbox" v-model="selectedOrders" :value="order.orderId"></td>
+            <td v-if="editingOrderId === order.orderId">
+              <select v-model="editableOrder.orderStatus" class="revise-select">
+                <option v-for="status in orderStatusList" :key="status" :value="status">{{ status }}</option>
+              </select>
+            </td>
+            <td v-else>{{ order.orderStatus }}</td>
+            <td>{{ order.orderId }}</td>
+            <td>{{ order.orderDate }}</td>
+            <td>{{ order.memberId }}</td>
+            <!-- 付款狀態 -->
+            <td v-if="editingOrderId === order.orderId">
+              <select v-model="editableOrder.paymentStatus" class="revise-select">
+                <option v-for="status in paymentStatusList" :key="status" :value="status">{{ status }}</option>
+              </select>
+            </td>
+            <td v-else>{{ order.paymentStatus }}</td>
+
+            <!-- 付款方式 -->
+            <td v-if="editingOrderId === order.orderId">
+              <select v-model="editableOrder.paymentCategory" class="revise-select">
+                <option v-for="category in paymentCategoryList" :key="category" :value="category">{{ category }}
+                </option>
+              </select>
+            </td>
+            <td v-else>{{ order.paymentCategory }}</td>
+
+            <!-- 配送方式 -->
+            <td v-if="editingOrderId === order.orderId">
+              <select v-model="editableOrder.shippingCategory" class="revise-select">
+                <option v-for="category in shippingCategoryList" :key="category" :value="category">{{ category }}
+                </option>
+              </select>
+            </td>
+            <td v-else>{{ order.shippingCategory }}</td>
+
+            <!-- 總金額 -->
+            <td v-if="editingOrderId === order.orderId">
+              <input type="text" v-model="editableOrder.totalAmount" class="revise-control" style="width: 100px;">
+            </td>
+            <td v-else>$ {{ order.totalAmount }}</td>
+
+            <!-- 備註 -->
+            <td v-if="editingOrderId === order.orderId">
+              <textarea v-model="editableOrder.note" class="revise-control"
+                style="width: 100%; height: 50px;"></textarea>
+            </td>
+            <td v-else>
+              <span tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
+                :data-bs-content="order.note">
+                {{ order.note && order.note.length > 10 ? order.note.substring(0, 10) + '...' : order.note }}
+              </span>
+            </td>
+
+            <td>
+              <button class="btn btn-sm btn-secondary" @click="viewDetail(order.orderId)">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button v-if="editingOrderId === order.orderId" class="btn btn-sm btn-success"
+                @click="saveOrder(order.orderId)">
+                <i class="bi bi-check-circle"></i>
+              </button>
+              <button v-if="editingOrderId !== order.orderId" class="btn btn-sm btn-info" @click="editOrder(order)">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" @click="deleteOrder(order.orderId)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
         </tbody>
-          </table>
-        </div>
+      </table>
 
-        <div>
-          <label class="revise">批次修改訂單狀態：</label>
-          <select v-model="batchStatus" class="form-select d-inline-block w-auto">
-            <option value="none">請選擇狀態</option>
-            <option value="訂單待出貨">訂單待出貨</option>
-            <option value="訂單配送中">訂單配送中</option>
-            <option value="訂單待收貨">訂單待收貨</option>
-            <option value="訂單已完成">訂單已完成</option>
-            <option value="訂單已取消">訂單已取消</option>
-            <option value="已付款">已付款</option>
-            <option value="未付款">未付款</option>
-          </select>
-          <button @click="batchUpdateOrders" class="btn btn-warning">批量更新</button>
-          <button @click="openAddOrderModal" class="btn btn-success">手動新增訂單</button>
-        </div>
+      <!-- 顯示訂單詳情 Modal -->
+      <OrderDetailModal :order-detail="orderDetail" :cities="cities" />
 
-        <button @click="isEditing = !isEditing" class="btn btn-warning">{{ isEditing ? '儲存修改' : '修改勾選訂單' }}</button>
-    <button v-if="isEditing" @click="isEditing = false" class="btn btn-secondary">取消修改</button>
+      <!-- 分頁 -->
+      <nav>
+        <ul class="pagination">
+          <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
+          <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
+          <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span></li>
+          <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
+          <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
+        </ul>
+      </nav>
 
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOrderModal">新增訂單</button>
-
-    <!-- 新增訂單 Modal -->
-    <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">新增訂單</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form @submit.prevent="submitOrder">
-              <div class="mb-3">
-                <label class="form-label">會員ID</label>
-                <input type="number" class="form-control" v-model="customerId" required>
-                <div class="mt-2">會員編號: {{ customerName }}</div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">商品ID</label>
-                <input type="number" class="form-control" v-model="productId" required>
-                <div class="mt-2">
-                  商品名稱: {{ productName }}<br>
-                  規格: {{ productSpecs }}<br>
-                  價格: ${{ productPrice }}
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">數量</label>
-                <input type="number" class="form-control" v-model="quantity" required>
-              </div>
-              <div class="mb-3">
-                <button type="button" class="btn btn-primary" @click="addProduct">新增商品</button>
-              </div>
-
-              <h5>已選商品</h5>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>商品名稱</th>
-                    <th>規格</th>
-                    <th>價格</th>
-                    <th>數量</th>
-                    <th>總金額</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in orderItems" :key="index">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.specs }}</td>
-                    <td>${{ item.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>${{ item.total }}</td>
-                    <td>
-                      <button type="button" class="btn btn-danger btn-sm" @click="removeProduct(index)">刪除</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div class="mb-3">
-                <label class="form-label">商品總金額</label>
-                <input type="text" class="form-control" :value="productTotal" readonly>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">運費</label>
-                <input type="number" class="form-control" v-model="shippingFee">
-              </div>
-              <div class="mb-3">
-                <label class="form-label">優惠折扣</label>
-                <input type="number" class="form-control" v-model="discount">
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">訂單總金額</label>
-                <input type="text" class="form-control" :value="totalAmount" readonly>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">收件人姓名</label>
-                <input type="text" class="form-control" v-model="receiverName" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">收件人電話</label>
-                <input type="text" class="form-control" v-model="receiverPhone" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">收件人地址</label>
-                <input type="text" class="form-control" v-model="receiverAddress" required>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">配送方式</label>
-                <select class="form-control" v-model="shippingMethod">
-                  <option value="宅配">宅配</option>
-                  <option value="快遞">快遞</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">付款方式</label>
-                <select class="form-control" v-model="paymentMethod">
-                  <option value="貨到付款">貨到付款</option>
-                  <option value="線上付款">線上付款</option>
-                </select>
-              </div>
-
-              <button type="submit" class="btn btn-success">提交訂單</button>
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
-
-<!-- 訂單表格 -->
-<label>訂單狀態：</label>
-      <select v-model="orderStatusFilter">
-        <option value="">全部</option>
-        <option value="已付款">已付款</option>
-        <option value="待付款">待付款</option>
-      </select>
-      <label>付款方式：</label>
-      <select v-model="paymentMethodFilter">
-        <option value="">全部</option>
-        <option v-for="method in paymentMethods" :key="method" :value="method">{{ method }}</option>
-      </select>
-      <label>配送方式：</label>
-      <select v-model="shippingMethodFilter">
-        <option value="">全部</option>
-        <option v-for="method in shippingMethods" :key="method" :value="method">{{ method }}</option>
-      </select>
-      <button @click="fetchOrders">篩選</button>
-    </div>
-
-    <!-- 訂單表格 -->
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th><input type="checkbox" v-model="selectAll"></th>
-          <th>訂單狀態</th>
-          <th>訂單編號</th>
-          <th>訂單日期</th>
-          <th>會員姓名</th>
-          <th>付款狀態</th>
-          <th>付款方式</th>
-          <th>配送方式</th>
-          <th>總金額</th>
-          <th>備註</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="order in filteredOrders" :key="order.id">
-          <td><input type="checkbox" v-model="selectedOrders" :value="order.id"></td>
-          <td>{{ order.status }}</td>
-          <td>{{ order.id }}</td>
-          <td>{{ order.date }}</td>
-          <td>{{ order.customerName }}</td>
-          <td>{{ order.paymentStatus }}</td>
-          <td>{{ order.paymentMethod }}</td>
-          <td>{{ order.shippingMethod }}</td>
-          <td>${{ order.totalAmount }}</td>
-          <td>{{ order.note }}</td>
-          <td>
-            <button class="btn btn-sm btn-secondary" @click="viewOrder(order.id)"><i class="bi bi-eye"></i></button>
-            <button class="btn btn-sm btn-info" @click="editOrder(order.id)"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger" @click="deleteOrder(order.id)"><i class="bi bi-trash"></i></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- 訂單詳情 Modal -->
-    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">訂單詳情</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <!-- 動態顯示訂單詳情 -->
-            <p v-if="selectedOrder">訂單編號: {{ selectedOrder.id }}</p>
-            <p v-if="selectedOrder">會員編號: {{ selectedOrder.customerName }}</p>
-            <p v-if="selectedOrder">總金額: ${{ selectedOrder.totalAmount }}</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click="editOrder(selectedOrder.id)">編輯</button>
-            <button type="button" class="btn btn-success" v-if="isEditing" @click="saveOrderChanges">儲存變更</button>
-            <button type="button" class="btn btn-secondary" v-if="isEditing" @click="cancelOrderChanges">取消變更</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 分頁 -->
-    <nav>
-      <ul class="pagination">
-        <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
-        <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
-        <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span></li>
-        <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
-        <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
-      </ul>
-    </nav>
-
-        </div>
-    </div>
-
+  </div>
 
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
-const VITE_API_URL=import.meta.env.VITE_API_URL
+import { ref, onMounted, watch, nextTick } from 'vue';
+import { fetchManageOrders } from '@/api/shop/orderApi';
+import { fetchOrderOptions } from '@/api/shop/orderApi';
+import { fetchManageOrderDetail } from '@/api/shop/orderApi';
+import { cities } from '@/assets/shop/city';
+import OrderDetailModal from '@/components/shop/OrderDetailModal.vue';
+import Swal from 'sweetalert2';
+import { updateOrder } from '@/api/shop/orderApi';
+import { Popover } from 'bootstrap';
+import { UpdateBatchOrders } from '@/api/shop/orderApi';
 
+//===========取得訂單options=================
+const orderStatusList = ref([]);
+const paymentStatusList = ref([]);
+const paymentCategoryList = ref([]);
+const shippingCategoryList = ref([]);
+const hasFetchedOptions = ref(false);
+
+const getOrderOptions = async () => {
+  if (hasFetchedOptions.value) return; // 避免重複請求
+  const data = await fetchOrderOptions();
+  if (data) {
+    orderStatusList.value = data.orderStatusList;
+    paymentStatusList.value = data.paymentStatusList;
+    paymentCategoryList.value = data.paymentCategoryList;
+    shippingCategoryList.value = data.shippingCategoryList;
+    hasFetchedOptions.value = true; // 標記已經請求過
+  }
+};
+
+//==================取得訂單資料(包含篩選)==============
 const orders = ref([]);
-const selectedOrders = ref([]);
-const selectAll = ref(false);
-const selectedOrder = ref(null);
-const isEditing = ref(false);
-const orderStatusFilter = ref('');
-const paymentMethodFilter = ref('');
-const shippingMethodFilter = ref('');
-const paymentMethods = ref([]);
-const shippingMethods = ref([]);
+const searchOrderId = ref('');
+const productKeyword = ref('');
+const memberId = ref('');
+const orderStatus = ref('');
+const paymentStatus = ref('');
+const paymentCategory = ref('');
+const shippingCategory = ref('');
+const startDate = ref('');
+const endDate = ref('');
 
-const fetchOrders = async () => {
+const loadOrders = async () => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/manage/shop/orders`, {
-      params: {
-        orderStatus: orderStatusFilter.value,
-        paymentMethod: paymentMethodFilter.value,
-        shippingMethod: shippingMethodFilter.value
-      }
-    });
-    orders.value = response.data.content;
+    const filters = {
+      orderId: searchOrderId.value.trim() || null,
+      productKeyword: productKeyword.value.trim() || null,
+      memberId: memberId.value.trim() || null,
+      orderStatus: orderStatus.value !== '' ? orderStatus.value : null,
+      paymentStatus: paymentStatus.value !== '' ? paymentStatus.value : null,
+      paymentCategory: paymentCategory.value !== '' ? paymentCategory.value : null,
+      shippingCategory: shippingCategory.value !== '' ? shippingCategory.value : null,
+      startDate: startDate.value || null,
+      endDate: endDate.value || null,
+    };
+    const data = await fetchManageOrders(filters);
+    if (data) {
+      orders.value = data.manageOrders.content;
+    }
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error('Error loading orders:', error);
   }
 };
 
-const fetchFilterOptions = async () => {
+// 是否顯示進階搜尋
+const isAdvancedSearchVisible = ref(false);
+
+//===========訂單詳情=============
+const orderDetail = ref();
+
+const viewDetail = async (orderId) => {
   try {
-    const response = await axios.get('/api/orderFilters');
-    paymentMethods.value = response.data.paymentMethods;
-    shippingMethods.value = response.data.shippingMethods;
+    const data = await fetchManageOrderDetail(orderId);
+    orderDetail.value = data;
+
+    const modalElement = document.getElementById('orderDetailModal');
+    if (modalElement) {
+      const myModal = new bootstrap.Modal(modalElement); // 改用 new Modal()
+      myModal.show();
+    } else {
+      console.error("找不到 orderDetailModal，請確認 DOM 是否正確渲染");
+    }
   } catch (error) {
-    console.error('Error fetching filter options:', error);
+    console.error('Failed to fetch order detail:', error);
   }
 };
 
-const filteredOrders = computed(() => {
-  return orders.value.filter(order => {
-    return (!orderStatusFilter.value || order.status === orderStatusFilter.value) &&
-           (!paymentMethodFilter.value || order.paymentMethod === paymentMethodFilter.value) &&
-           (!shippingMethodFilter.value || order.shippingMethod === shippingMethodFilter.value);
-  });
-});
-
-const viewOrder = (id) => {
-  selectedOrder.value = orders.value.find(order => order.id === id);
-};
-
-const editOrder = (id) => {
-  isEditing.value = true;
-  viewOrder(id);
-};
-
-const saveOrderChanges = () => {
-  isEditing.value = false;
-};
-
-const cancelOrderChanges = () => {
-  isEditing.value = false;
-};
-
-const deleteOrder = async (id) => {
-  try {
-    await axios.delete(`/api/orders/${id}`);
-    orders.value = orders.value.filter(order => order.id !== id);
-  } catch (error) {
-    console.error('Error deleting order:', error);
-  }
-};
+// // 預設縣市數據
+// const citiesList = ref(cities);
 
 onMounted(() => {
-  fetchOrders();
-  fetchFilterOptions();
+  loadOrders();
+  getOrderOptions();
+  initPopovers();
 });
+
+//備註的popover
+const initPopovers = () => {
+  nextTick(() => {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
+      new Popover(el);
+    });
+  });
+};
+
+// 監聽 orders 變化，確保新元素有 Popover
+watch(() => orders, () => {
+  initPopovers();
+}, { deep: true });
+
+//清除篩選
+const clearFilters = () => {
+  searchOrderId.value = '';
+  productKeyword.value = '';
+  memberId.value = '';
+  orderStatus.value = '';
+  paymentStatus.value = '';
+  paymentCategory.value = '';
+  shippingCategory.value = '';
+  startDate.value = '';
+  endDate.value = '';
+  loadOrders();
+};
+
+//===============sortby===========
+const sortDirection = ref('');
+const isAscending = ref(true);
+
+const sortBy = (field) => {
+  if (sortDirection.value === field) {
+    isAscending.value = !isAscending.value;
+  } else {
+    sortDirection.value = field;
+    isAscending.value = true;
+  }
+
+  orders.value.sort((a, b) => {
+    const aValue = a[field];
+    const bValue = b[field];
+
+    if (isAscending.value) {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+};
+
+//==================編輯單一訂單=================
+const editingOrderId = ref(null);
+const editableOrder = ref({});
+
+const editOrder = (order) => {
+  if (editingOrderId.value !== null) {
+    Swal.fire({
+      icon: 'warning',
+      title: '請先完成當前編輯',
+      text: '請先儲存或取消當前的編輯，才能編輯其他訂單。',
+      confirmButtonText: '確定'
+    });
+    return;
+  }
+  editingOrderId.value = order.orderId;
+  editableOrder.value = { ...order };
+};
+
+// 儲存修改>>putmapping
+const saveOrder = async (orderId) => {
+  const originalOrder = orders.value.find(o => o.orderId === orderId);
+
+  // 比對有修改過的欄位
+  const modifiedOrder = {};
+
+  // 比對每個欄位，只有不相等的欄位才會被記錄
+  if (originalOrder.orderStatus !== editableOrder.value.orderStatus) {
+    modifiedOrder.orderStatus = editableOrder.value.orderStatus;
+  }
+  if (originalOrder.paymentStatus !== editableOrder.value.paymentStatus) {
+    modifiedOrder.paymentStatus = editableOrder.value.paymentStatus;
+  }
+  if (originalOrder.paymentCategory !== editableOrder.value.paymentCategory) {
+    modifiedOrder.paymentCategory = editableOrder.value.paymentCategory;
+  }
+  if (originalOrder.shippingCategory !== editableOrder.value.shippingCategory) {
+    modifiedOrder.shippingCategory = editableOrder.value.shippingCategory;
+  }
+  if (originalOrder.totalAmount !== editableOrder.value.totalAmount) {
+    modifiedOrder.totalAmount = editableOrder.value.totalAmount;
+  }
+  if (originalOrder.note !== editableOrder.value.note) {
+    modifiedOrder.note = editableOrder.value.note;
+  }
+
+  // 如果沒有任何欄位被修改
+  if (Object.keys(modifiedOrder).length === 0) {
+    Swal.fire({
+      title: '未修改資料',
+      text: '您沒有更改任何內容。',
+      icon: 'info',
+      timer: 1000,
+      showConfirmButton: false
+    });
+
+    // **退出編輯模式**
+    editingOrderId.value = null;
+
+    // 確保 Vue 更新完成後再重新初始化 Popover
+    nextTick(() => {
+      initPopovers();
+    });
+
+    return;
+  }
+
+  // 確認修改 SweetAlert
+  const result = await Swal.fire({
+    title: '確定要修改嗎?',
+    text: '此操作無法復原!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+    reverseButtons: true,
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // 呼叫 updateOrder 函數更新訂單
+      await updateOrder(orderId, modifiedOrder);
+
+      // 更新前端資料
+      const index = orders.value.findIndex(o => o.orderId === orderId);
+      if (index !== -1) {
+        orders.value[index] = { ...editableOrder.value };
+      }
+      editingOrderId.value = null;
+
+      Swal.fire({
+        title: '修改成功!',
+        text: '訂單資料已更新。',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      Swal.fire({
+        title: '修改失敗!',
+        text: '請稍後再試。',
+        icon: 'error',
+        confirmButtonText: '確定'
+      });
+    }
+  }
+};
+
+//=============批量更新===================
+const selectedOrders = ref([]);
+const selectAll = ref(false);
+const batchStatus = ref("");
+
+// 監聽 selectedOrders 變化，控制 selectAll 狀態
+watch(selectedOrders, (newVal) => {
+  if (newVal.length === orders.value.length) {
+    selectAll.value = true;
+  } else {
+    selectAll.value = false;
+  }
+});
+
+// 切換全選
+const toggleAll = () => {
+  if (selectAll.value) {
+    selectedOrders.value = orders.value.map(order => order.orderId);
+  } else {
+    selectedOrders.value = [];
+  }
+};
+
+// 批量更新
+const batchUpdateOrders = async () => {
+  if (!batchStatus.value) {
+    alert("請選擇狀態");
+    return;
+  }
+
+  const updatedOrders = {
+    orderIds: selectedOrders.value.join(','),
+    batchStatus: batchStatus.value
+  };
+
+  try {
+    await UpdateBatchOrders(updatedOrders);
+    alert("批量更新成功");
+    selectedOrders.value = [];
+    selectAll.value = false;
+    // loadOrders(); // 重新獲取訂單列表
+  } catch (error) {
+    alert("批量更新失敗");
+  }
+};
+
 </script>
+
+<style>
+html {
+  font-size: 14px !important;
+}
+
+.popover-body {
+  font-size: 12px;
+}
+
+.filter-table tr {
+  margin-bottom: 10px;
+  /* 為每行增加間隔 */
+}
+
+
+/* 或者增加行的內部間距 */
+.filter-table td {
+  padding: 3px 5px;
+  /* 為每個單元格增加內部間距 */
+}
+
+th {
+  font-size: 15px !important;
+}
+
+table {
+  text-align: center;
+}
+
+/* 確保表格邊框合併，減少間距 */
+.filter-table {
+  border-collapse: collapse;
+}
+
+/* 調整表格內格子的 padding，減少上下距離 */
+.filter-table td,
+.filter-table th {
+  padding: 0px 20px;
+  /* 這裡可以根據需要調整大小 */
+}
+
+/* 表格整體靠左對齊 */
+.filter-table {
+  text-align: left;
+  margin-left: 0;
+}
+
+input {
+  text-align: center;
+  vertical-align: middle;
+}
+
+option {
+  text-align: center;
+}
+
+.advanced-search {
+  margin: 20px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  width: 45%;
+  min-width: 700px;
+}
+
+.form-select {
+  width: 100px !important;
+}
+
+.revise-select {
+  display: block;
+  /* 讓 select 變成區塊元素 */
+  margin: 0 auto;
+  /* 自動水平置中 */
+  text-align: center;
+  /* 讓內部文字置中 */
+  text-align-last: center;
+  /* 讓選中的 <option> 也置中 */
+}
+</style>

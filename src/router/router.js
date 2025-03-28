@@ -3,8 +3,12 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/Home.vue';  // 引入 Home.vue
 import Login from '@/views/Login.vue';
 import ShopOrders from '@/views/shop/ShopOrders.vue';
+
 import ManageVendor from '@/views/vendor/ManageVendor.vue';
 import ManageCertification from '@/views/vendor/ManageCertification.vue';
+
+import ShopProducts from '@/views/shop/ShopProducts.vue';
+
 
 const routes = [
     {
@@ -23,6 +27,7 @@ const routes = [
         component: ShopOrders
     },
     {
+
         path: '/manage/vendor/certification',
         name: 'ManageCertification',
         component: ManageCertification
@@ -31,6 +36,12 @@ const routes = [
         path: '/manage/vendor',
         name: 'ManageVendor',
         component: ManageVendor
+    }
+    {
+        path: '/manage/shop/products',
+        name: 'ShopProducts',
+        component: ShopProducts
+
     },
 
     // 可以根據需要添加更多路由
