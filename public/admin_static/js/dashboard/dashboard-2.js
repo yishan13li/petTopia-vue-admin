@@ -45,7 +45,7 @@
         }]
     ];
 
-    new Chartist.Pie('.ct-pie-chart', data, options, responsiveOptions);
+    // new Chartist.Pie('.ct-pie-chart', data, options, responsiveOptions);
 
 
     /*----------------------------------*/
@@ -74,7 +74,7 @@
         }]
     ];
 
-    new Chartist.Bar('.ct-bar-chart', data, options, responsiveOptions);
+    // new Chartist.Bar('.ct-bar-chart', data, options, responsiveOptions);
 
 
     $('.year-calendar').pignoseCalendar({
@@ -89,4 +89,4 @@
 })(jQuery);
 
 
-const wt2 = new PerfectScrollbar('.widget-todo2');
+// const wt2 = new PerfectScrollbar('.widget-todo2');

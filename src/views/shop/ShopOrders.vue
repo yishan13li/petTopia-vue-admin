@@ -221,7 +221,7 @@
       </table>
 
       <!-- 顯示訂單詳情 Modal -->
-      <OrderDetailModal :order-detail="orderDetail" :cities="cities" />
+      <OrderDetailModal :order-detail="orderDetail" />
 
       <!-- 顯示查無資料訊息 -->
       <div v-if="message" class="no-data-message">
@@ -266,7 +266,6 @@ import { fetchOrderOptions } from '@/api/shop/orderApi';
 import { fetchManageOrderDetail } from '@/api/shop/orderApi';
 import { updateOrder } from '@/api/shop/orderApi';
 import { UpdateBatchOrders } from '@/api/shop/orderApi';
-import { cities } from '@/assets/shop/city';
 import OrderDetailModal from '@/components/shop/OrderDetailModal.vue';
 import { deleteOneOrder } from '@/api/shop/orderApi';
 
@@ -340,6 +339,7 @@ const loadOrders = async () => {
       orders.value = data.manageOrders.content;
       totalPages.value = data.manageOrders.totalPages; // 更新總頁數
       totalElements.value = data.manageOrders.totalElements; // 更新總資料數
+      message.value = ""; 
     }
   } catch (error) {
     console.error('Error loading orders:', error);
@@ -392,9 +392,6 @@ const viewDetail = async (orderId) => {
     console.error('Failed to fetch order detail:', error);
   }
 };
-
-// // 預設縣市數據
-// const citiesList = ref(cities);
 
 onMounted(() => {
   loadOrders();
@@ -757,15 +754,12 @@ option {
 }
 
 .pagination .page-item.disabled .page-link {
-  background-color: #f5f3f3;
-  border-color: #e9e7e7;
-  cursor: not-allowed;
-  background-color: #f5f3f3;
-  /* 淺灰色背景 */
-  border-color: #e9e7e7;
-  /* 邊框顏色 */
-  cursor: not-allowed;
-  /* 禁用時的光標 */
+
+
+  background-color: #f5f3f3;  
+  border-color: #e9e7e7;      
+  cursor: not-allowed;      
+
 }
 
 .no-data-message {
