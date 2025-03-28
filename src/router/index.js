@@ -6,7 +6,8 @@ import ShopOrders from '@/views/shop/ShopOrders.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
 import MemberManagement from '@/views/member/MemberManagement.vue'
 import PlaceholderPage from '@/components/PlaceholderPage.vue'
-
+import ManageVendor from '@/views/vendor/ManageVendor.vue';
+import ManageCertification from '@/views/vendor/ManageCertification.vue';
 const routes = [
   {
     path: '/',
@@ -68,6 +69,20 @@ const routes = [
     name: 'Reports',
     component: PlaceholderPage,
     props: { title: '報表分析' },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/vendor/certification',
+    name: 'ManageCertification',
+    component: ManageCertification,
+    props: { title: '認證申請' },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/vendor',
+    name: 'ManageVendor',
+    component: ManageVendor,
+    props: { title: '店家管理' },
     meta: { requiresAuth: true }
   }
 ]

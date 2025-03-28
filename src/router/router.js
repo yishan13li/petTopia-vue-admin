@@ -42,7 +42,7 @@ const routes = [
         path: '/manage/vendor',
         name: 'ManageVendor',
         component: ManageVendor
-    }
+    },
     {
         path: '/manage/shop/products',
         name: 'ShopProducts',
