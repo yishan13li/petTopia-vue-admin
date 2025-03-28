@@ -67,12 +67,10 @@ const props = defineProps({
 
   orderDetail: {
     type: Object,
-    required: true,
+    required: false,
+    
   },
-  cities: {
-    type: Array,
-    required: true,
-  },
+
 });
 
 </script>
