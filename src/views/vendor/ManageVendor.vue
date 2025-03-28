@@ -91,7 +91,7 @@
                             <td>
                                 <button @click="toggleVendorStatus(vendor)"
                                     :class="{ 'btn-success': !vendor.status, 'btn-danger': vendor.status }"
-                                    class="btn btn-sm">
+                                    class="btn btn-sm ">
                                     {{ vendor.status ? '設為未通過' : '設為已通過' }}
                                 </button>
                             </td>
@@ -381,3 +381,46 @@ onMounted(async () => {
     });
 })
 </script>
+<style scoped>
+#vendorsTable th:nth-child(11),
+#vendorsTable td:nth-child(11) {
+    width: 10%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+
+#vendorsTable th:nth-child(3),
+#vendorsTable td:nth-child(3) {
+    width: 16%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+
+#vendorsTable th:nth-child(9),
+#vendorsTable td:nth-child(9) {
+    width: 10%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+
+#vendorsTable th:nth-child(10),
+#vendorsTable td:nth-child(10) {
+    width: 10%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+
+#vendorsTable th:nth-child(6),
+#vendorsTable td:nth-child(6) {
+    width: 8%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+
+#vendorsTable th:nth-child(4),
+#vendorsTable td:nth-child(4) {
+    width: 10%;
+    /* 增加「操作」欄位的寬度 */
+    text-align: center;
+}
+</style>
