@@ -5,6 +5,8 @@ import Login from '@/views/Login.vue';
 import ShopOrders from '@/views/shop/ShopOrders.vue';
 import ManageVendor from '@/views/vendor/ManageVendor.vue';
 import ManageCertification from '@/views/vendor/ManageCertification.vue';
+import ShopProducts from '@/views/shop/ShopProducts.vue';
+
 
 const routes = [
     {
@@ -21,6 +23,11 @@ const routes = [
         path: '/manage/shop/orders',
         name: 'ShopOrders',
         component: ShopOrders
+    },
+    {
+        path: '/manage/shop/products',
+        name: 'ShopProducts',
+        component: ShopProducts
     },
     {
         path: '/manage/vendor/certification',
