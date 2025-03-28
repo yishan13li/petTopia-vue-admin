@@ -130,8 +130,7 @@
                                 aria-expanded="false"><i class="bi bi-cart"></i><span
                                     class="nav-text">商城管理</span></router-link>
                             <ul aria-expanded="false">
-                                <li><a href="table-bootstrap-basic.html">商品列表</a></li>
-                                <li><a href="table-bootstrap-basic.html">庫存管理</a></li>
+                                <li><router-link to="/manage/shop/products">商品管理</router-link></li>
                                 <li><router-link to="/manage/shop/orders">訂單管理</router-link></li>
                                 <li><a href="table-datatable-basic.html">優惠券管理</a></li>
                                 <li><a href="table-datatable-basic.html">客服管理</a></li>
