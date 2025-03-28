@@ -26,6 +26,11 @@ export const fetchManageOrders = async (filters) => {
       url: `${URL}/manage/shop/orders`,
       params: filters
     });
+
+    if (response.status === 204) {
+      return { status: 204 };  
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -80,4 +85,16 @@ export const UpdateBatchOrders = async (updatedOrders) => {
   }
 };
 
-//刪除訂單
+// 刪除訂單
+export const deleteOneOrder = async (orderId) => {
+  try {
+    const response = await axios({
+      method: 'DELETE',
+      url: `${URL}/manage/shop/orders/${orderId}/delete`,  
+    });
+    return response.data; 
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    return null;  
+  }
+};

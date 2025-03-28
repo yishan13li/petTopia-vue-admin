@@ -9,6 +9,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig({
   server: {
 
+
     port: 5174,  // 設置開發伺服器端口為 5174
     proxy: {
       '/api': {
@@ -17,7 +18,6 @@ export default defineConfig({
       }
     }
   },
-  
 
   plugins: [
     vue(),

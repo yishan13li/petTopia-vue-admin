@@ -225,15 +225,33 @@
       <!-- 顯示訂單詳情 Modal -->
       <OrderDetailModal :order-detail="orderDetail" :cities="cities" />
 
+      <!-- 顯示查無資料訊息 -->
+      <div v-if="message" class="no-data-message">
+        {{ message }}
+      </div>
+
       <!-- 分頁 -->
       <nav>
         <ul class="pagination">
-          <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
-          <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
-          <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span></li>
-          <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
-          <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button @click="goToPage(1)" class="page-link">«</button>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <button @click="prevPage" class="page-link">‹</button>
+          </li>
+          <li class="page-item">
+            <span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <button @click="nextPage" class="page-link">›</button>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <button @click="goToPage(totalPages)" class="page-link">»</button>
+          </li>
         </ul>
+        <div class="total-records">
+          <span>總共 <strong> &nbsp{{ totalElements }}&nbsp </strong> 筆 資料</span>
+        </div>
       </nav>
 
     </div>
@@ -243,15 +261,16 @@
 
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
+import Swal from 'sweetalert2';
+import { Popover } from 'bootstrap';
 import { fetchManageOrders } from '@/api/shop/orderApi';
 import { fetchOrderOptions } from '@/api/shop/orderApi';
 import { fetchManageOrderDetail } from '@/api/shop/orderApi';
+import { updateOrder } from '@/api/shop/orderApi';
+import { UpdateBatchOrders } from '@/api/shop/orderApi';
 import { cities } from '@/assets/shop/city';
 import OrderDetailModal from '@/components/shop/OrderDetailModal.vue';
-import Swal from 'sweetalert2';
-import { updateOrder } from '@/api/shop/orderApi';
-import { Popover } from 'bootstrap';
-import { UpdateBatchOrders } from '@/api/shop/orderApi';
+import { deleteOneOrder } from '@/api/shop/orderApi';
 
 //===========取得訂單options=================
 const orderStatusList = ref([]);
@@ -273,6 +292,7 @@ const getOrderOptions = async () => {
 };
 
 //==================取得訂單資料(包含篩選)==============
+//訂單資訊
 const orders = ref([]);
 const searchOrderId = ref('');
 const productKeyword = ref('');
@@ -283,6 +303,13 @@ const paymentCategory = ref('');
 const shippingCategory = ref('');
 const startDate = ref('');
 const endDate = ref('');
+const message = ref('');
+
+//分頁資訊
+const currentPage = ref(1); // 當前頁數
+const pageSize = ref(10);    // 每頁顯示的數量
+const totalPages = ref(1);   // 總頁數
+const totalElements = ref(0); // 總資料數
 
 const loadOrders = async () => {
   try {
@@ -296,13 +323,52 @@ const loadOrders = async () => {
       shippingCategory: shippingCategory.value !== '' ? shippingCategory.value : null,
       startDate: startDate.value || null,
       endDate: endDate.value || null,
+      page: currentPage.value,   // 使用當前頁數
+      size: pageSize.value,      // 每頁大小
     };
+
     const data = await fetchManageOrders(filters);
+
+    // 如果回傳的狀態是 204，顯示查無資料
+    if (data.status === 204) {
+      orders.value = []; // 清空資料
+      totalPages.value = 1; // 重設總頁數
+      totalElements.value = 0; // 重設總資料數
+      message.value = "查無相關資料"; // 設定訊息
+      return;  // 不再繼續執行
+    }
+
     if (data) {
       orders.value = data.manageOrders.content;
+      totalPages.value = data.manageOrders.totalPages; // 更新總頁數
+      totalElements.value = data.manageOrders.totalElements; // 更新總資料數
     }
   } catch (error) {
     console.error('Error loading orders:', error);
+  }
+};
+
+// 下一頁
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+    loadOrders(); // 載入新頁的訂單
+  }
+};
+
+// 上一頁
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+    loadOrders(); // 載入新頁的訂單
+  }
+};
+
+// 跳到指定頁
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    loadOrders(); // 載入指定頁的訂單
   }
 };
 
@@ -525,23 +591,99 @@ const toggleAll = () => {
 // 批量更新
 const batchUpdateOrders = async () => {
   if (!batchStatus.value) {
-    alert("請選擇狀態");
+    Swal.fire({
+      title: '請選擇狀態',
+      icon: 'warning',
+      timer: 1500,
+      showConfirmButton: false,
+    });
     return;
   }
 
   const updatedOrders = {
     orderIds: selectedOrders.value.join(','),
-    batchStatus: batchStatus.value
+    batchStatus: batchStatus.value,
   };
 
   try {
-    await UpdateBatchOrders(updatedOrders);
-    alert("批量更新成功");
-    selectedOrders.value = [];
-    selectAll.value = false;
-    // loadOrders(); // 重新獲取訂單列表
+    const result = await Swal.fire({
+      title: '確定要批量更新訂單狀態嗎?',
+      text: '此操作無法復原!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      await UpdateBatchOrders(updatedOrders);
+      Swal.fire({
+        title: '批量更新成功!',
+        text: '訂單狀態已更新。',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      selectedOrders.value = [];
+      selectAll.value = false;
+      loadOrders(); // 重新獲取訂單列表
+    }
   } catch (error) {
-    alert("批量更新失敗");
+    Swal.fire({
+      title: '批量更新失敗!',
+      text: '請稍後再試。',
+      icon: 'error',
+      confirmButtonText: '確定',
+    });
+  }
+};
+
+//==============刪除單一訂單================
+const deleteOrder = async (orderId) => {
+  try {
+    const result = await Swal.fire({
+      title: '確定要刪除這筆訂單嗎?',
+      text: '此操作無法復原!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      const deleteResult = await deleteOneOrder(orderId);
+
+      if (deleteResult) {
+        orders.value = orders.value.filter(order => order.orderId !== orderId);
+        Swal.fire({
+          title: '訂單刪除成功!',
+          text: '訂單已被刪除。',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          title: '刪除訂單失敗!',
+          text: '請稍後再試。',
+          icon: 'error',
+          confirmButtonText: '確定',
+        });
+      }
+    }
+  } catch (error) {
+    Swal.fire({
+      title: '刪除訂單時出錯!',
+      text: '請稍後再試。',
+      icon: 'error',
+      confirmButtonText: '確定',
+    });
   }
 };
 
@@ -558,14 +700,10 @@ html {
 
 .filter-table tr {
   margin-bottom: 10px;
-  /* 為每行增加間隔 */
 }
 
-
-/* 或者增加行的內部間距 */
 .filter-table td {
   padding: 3px 5px;
-  /* 為每個單元格增加內部間距 */
 }
 
 th {
@@ -576,19 +714,15 @@ table {
   text-align: center;
 }
 
-/* 確保表格邊框合併，減少間距 */
 .filter-table {
   border-collapse: collapse;
 }
 
-/* 調整表格內格子的 padding，減少上下距離 */
 .filter-table td,
 .filter-table th {
   padding: 0px 20px;
-  /* 這裡可以根據需要調整大小 */
 }
 
-/* 表格整體靠左對齊 */
 .filter-table {
   text-align: left;
   margin-left: 0;
@@ -619,12 +753,26 @@ option {
 
 .revise-select {
   display: block;
-  /* 讓 select 變成區塊元素 */
   margin: 0 auto;
-  /* 自動水平置中 */
   text-align: center;
-  /* 讓內部文字置中 */
   text-align-last: center;
-  /* 讓選中的 <option> 也置中 */
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: #f5f3f3;
+  border-color: #e9e7e7;
+  cursor: not-allowed;
+  background-color: #f5f3f3;
+  /* 淺灰色背景 */
+  border-color: #e9e7e7;
+  /* 邊框顏色 */
+  cursor: not-allowed;
+  /* 禁用時的光標 */
+}
+
+.no-data-message {
+  text-align: center;
+  font-size: larger;
+  padding: 100px;
 }
 </style>
