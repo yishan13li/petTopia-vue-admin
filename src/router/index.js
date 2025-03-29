@@ -5,6 +5,7 @@ import Dashboard from '@/views/Dashboard.vue'
 import ShopOrders from '@/views/shop/ShopOrders.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
 import MemberManagement from '@/views/member/MemberManagement.vue'
+import CouponManagement from '@/views/shop/CouponManagement.vue'
 import PlaceholderPage from '@/components/PlaceholderPage.vue'
 import ManageVendor from '@/views/vendor/ManageVendor.vue';
 import ManageCertification from '@/views/vendor/ManageCertification.vue';
@@ -53,8 +54,7 @@ const routes = [
   {
     path: '/manage/shop/coupons',
     name: 'Coupons',
-    component: PlaceholderPage,
-    props: { title: '優惠券管理' },
+    component: CouponManagement,
     meta: { requiresAuth: true }
   },
   {
