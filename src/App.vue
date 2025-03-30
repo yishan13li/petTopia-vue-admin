@@ -4,6 +4,7 @@
     <HeaderIndex />
     <main>
       <router-view></router-view>
+      <ChatRoom></ChatRoom>
     </main>
   </div>
 </template>
@@ -12,6 +13,11 @@
 import { onMounted } from 'vue';
 import { useAdminStore } from './stores/adminStore'
 import HeaderIndex from './components/HeaderIndex.vue';
+import ChatRoom from './components/shop/ChatRoom.vue';
+
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const adminStore = useAdminStore()
 
