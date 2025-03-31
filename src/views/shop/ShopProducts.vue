@@ -59,9 +59,12 @@
                                     <span class="to-text mx-2">到</span>
                                     <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
                                 </td>
-                                <td class="d-flex">
-                                    <button @click="onChangePage" class="btn btn-primary">篩選</button>
-                                    <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
+
+                                <td>
+                                    <div class="d-flex">
+                                        <button @click="loadOrders" class="btn btn-primary">篩選</button>
+                                        <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -126,7 +129,8 @@
                         <td>{{ product.productSize?.name ?? "-" }}</td>
                         <td>{{ product.productColor?.name ?? "-" }}</td>
                         <td>$ {{ product.unitPrice }}</td>
-                        <td :class="{ 'text-danger': product.discountPrice }">$ {{ product.discountPrice ? product.discountPrice : "-" }}</td>
+                        <td :class="{ 'text-danger': product.discountPrice }">$ {{ product.discountPrice ?
+                            product.discountPrice : "-" }}</td>
                         <td>{{ product.stockQuantity }}</td>
                         <td>{{ dayjs(product.createdTime).format("YYYY-MM-DD") }}</td>
                         <td>
@@ -145,7 +149,7 @@
             </table>
 
             <!-- 新增商品 Modal -->
-            <AddProductModal ref="addProductModalRef" @updateProductList="onChangePage(currentPage)"/>
+            <AddProductModal ref="addProductModalRef" @updateProductList="onChangePage(currentPage)" />
 
             <!-- 修改商品 Modal -->
             <ModifyProductModal :modify-product="modifyProduct" @updateProductList="onChangePage(currentPage)" />
@@ -153,7 +157,10 @@
             <!-- 分頁 -->
             <div class="container" v-if="total > 0">
                 <Paginate v-model="currentPage" :page-count="pages" :initial-page="currentPage" :page-range="3"
-                    :margin-pages="1" :click-handler="onChangePage" :first-last-button="true">
+                    :margin-pages="1" :click-handler="onChangePage" :first-last-button="true"
+                    prev-text="<i class= 'bi bi-chevron-left' > </i>" next-text="<i class= 'bi bi-chevron-right' > </i>"
+                    first-button-text="<i class= 'bi bi-chevron-bar-left' > </i>"
+                    last-button-text="<i class= 'bi bi-chevron-bar-right' > </i>">
 
                 </Paginate>
             </div>

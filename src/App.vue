@@ -1,28 +1,40 @@
 <!-- src/App.vue -->
 <template>
   <div>
-<component :is="currentHeader"></component>
+    <HeaderIndex />
     <main>
       <router-view></router-view>
+      <ChatRoom></ChatRoom>
     </main>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-
+import { onMounted } from 'vue';
+import { useAdminStore } from './stores/adminStore'
 import HeaderIndex from './components/HeaderIndex.vue';
-const route=useRoute();
+import ChatRoom from './components/shop/ChatRoom.vue';
 
-// 根據path 決定顯示哪一個 header
-const currentHeader = computed(() => {
-  if (route.path.startsWith('/shop')) {
-    return HeaderShop;  // 顯示 HeaderShop
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+
+const adminStore = useAdminStore()
+
+onMounted(async () => {
+  // 檢查是否有 token
+  const token = localStorage.getItem('adminToken')
+  if (token) {
+    try {
+      // 獲取管理員資訊
+      await adminStore.fetchAdminInfo()
+    } catch (error) {
+      console.error('獲取管理員資訊失敗:', error)
+      // 如果獲取失敗，清除 token
+      localStorage.removeItem('adminToken')
+    }
   }
-  return HeaderIndex;  // 顯示 HeaderIndex
-});
-
+})
 </script>
 
 <style scoped>

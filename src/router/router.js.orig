@@ -3,6 +3,12 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '@/views/Home.vue';  // 引入 Home.vue
 import Login from '@/views/Login.vue';
 import ShopOrders from '@/views/shop/ShopOrders.vue';
+import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
+
+import ManageVendor from '@/views/vendor/ManageVendor.vue';
+import ManageCertification from '@/views/vendor/ManageCertification.vue';
+
+
 import ShopProducts from '@/views/shop/ShopProducts.vue';
 
 
@@ -21,6 +27,21 @@ const routes = [
         path: '/manage/shop/orders',
         name: 'ShopOrders',
         component: ShopOrders
+    },
+    {
+        path: '/manage/shop/productReviews',
+        name: 'ShopProductReviews',
+        component: ShopProductReviews
+    },
+    {
+        path: '/manage/vendor/certification',
+        name: 'ManageCertification',
+        component: ManageCertification
+    },
+    {
+        path: '/manage/vendor',
+        name: 'ManageVendor',
+        component: ManageVendor
     },
     {
         path: '/manage/shop/products',

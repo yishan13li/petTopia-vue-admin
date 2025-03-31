@@ -768,11 +768,21 @@ option {
 }
 
 .pagination .page-item.disabled .page-link {
+<<<<<<< HEAD
 
+=======
   background-color: #f5f3f3;
   border-color: #e9e7e7;
   cursor: not-allowed;
+>>>>>>> f2/yon
+  background-color: #f5f3f3;
+  border-color: #e9e7e7;
+  cursor: not-allowed;
+<<<<<<< HEAD
 
+=======
+  /* 禁用時的光標 */
+>>>>>>> f2/yon
 }
 
 .no-data-message {
