@@ -155,7 +155,19 @@
                 <option v-for="status in orderStatusList" :key="status" :value="status">{{ status }}</option>
               </select>
             </td>
-            <td v-else>{{ order.orderStatus }}</td>
+            <td v-else>
+              <span :class="{
+                'badge bg-secondary': order.orderStatus === '待處理',
+                'badge bg-primary': order.orderStatus === '待出貨',
+                'badge bg-warning': order.orderStatus === '配送中',
+                'badge bg-info': order.orderStatus === '待收貨',
+                'badge bg-success': order.orderStatus === '已完成',
+                'badge bg-danger': order.orderStatus === '已取消'
+              }" class="fs-6"> <!-- 這裡可以調整字型大小 -->
+                {{ order.orderStatus }}
+              </span>
+            </td>
+
             <td>{{ order.orderId }}</td>
             <td>{{ order.orderDate }}</td>
             <td>{{ order.memberId }}</td>
@@ -341,7 +353,7 @@ const loadOrders = async () => {
       orders.value = data.manageOrders.content;
       totalPages.value = data.manageOrders.totalPages; // 更新總頁數
       totalElements.value = data.manageOrders.totalElements; // 更新總資料數
-      message.value = ""; 
+      message.value = "";
     }
   } catch (error) {
     console.error('Error loading orders:', error);
@@ -756,11 +768,9 @@ option {
 }
 
 .pagination .page-item.disabled .page-link {
-
-
-  background-color: #f5f3f3;  
-  border-color: #e9e7e7;      
-  cursor: not-allowed;      
+  background-color: #f5f3f3;
+  border-color: #e9e7e7;
+  cursor: not-allowed;
 
 }
 
