@@ -7,6 +7,7 @@
             Nav header start
         ***********************************-->
             <div class="nav-header">
+
                 <div class="nav-header">
                     <a href="index.html" class="brand-logo">
                         <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
@@ -20,6 +21,15 @@
                         <span class="line"></span><span class="line"></span><span class="line"></span>
                     </div>
                 </div>
+
+
+                <router-link to="/dashboard" class="brand-logo">
+                    <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+                    <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+                    <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
+                </router-link>
+
+
             </div>
 
             <!--**********************************
@@ -114,26 +124,139 @@
                                 aria-expanded="false"><i class="bi bi-cart"></i><span
                                     class="nav-text">商城管理</span></router-link>
                             <ul aria-expanded="false">
-                                <li><a href="table-bootstrap-basic.html">商品列表</a></li>
-                                <li><a href="table-bootstrap-basic.html">庫存管理</a></li>
+				<li><router-link to="/manage/shop/products">商品管理</router-link></li>
                                 <li><router-link to="/manage/shop/orders">訂單管理</router-link></li>
+
                                 <li><router-link to="/manage/shop/productReviews">商品評論管理</router-link></li>
+
                                 <li><a href="table-datatable-basic.html">優惠券管理</a></li>
                                 <li><a href="table-datatable-basic.html">客服管理</a></li>
                                 <li><a href="table-datatable-basic.html">報表分析</a></li>
                             </ul>
                         </li>
+
+                        <li><router-link to="/manage/vendor" class="has-arrow" href="javascript:void()"
+                                aria-expanded="false"><i class="bi bi-cart"></i><span
+                                    class="nav-text">商家管理</span></router-link>
+                            <ul aria-expanded="false">
+                                <li><router-link to="/manage/vendor">商家列表</router-link></li>
+                                <li><router-link to="/manage/vendor/certification">認證申請管理</router-link></li>
+
+
+                            </ul>
+                        </li>
+
                         <li class="nav-label"></li>
                     </ul>
                 </div>
             </div>
         </div>
 
-    </header>
+</header>
+
+>>>>>>> f2/yon
 </template>
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { useAdminStore } from '@/stores/adminStore'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
+const router = useRouter();
+const adminStore = useAdminStore()
 
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('adminToken')
+    if (token) {
+      try {
+        const response = await axios.post(`${API_URL}/api/admin/logout`, {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        console.log('登出請求成功:', response.data)
+      } catch (error) {
+        console.error('登出請求失敗:', error)
+      }
+    }
+    
+    // 清除 store 中的資訊
+    adminStore.clearAdminInfo()
+    console.log('已清除管理員資訊')
+    
+    // 清除本地存儲
+    localStorage.removeItem('adminToken')
+    console.log('已清除管理員令牌')
+    
+    // 顯示成功訊息
+    await Swal.fire({
+      icon: 'success',
+      title: '登出成功',
+      text: '感謝您的使用',
+      timer: 1500,
+      showConfirmButton: false
+    })
+    console.log('已顯示登出成功提示')
+    
+    // 使用 window.location 進行跳轉
+    window.location.href = '/login'
+    console.log('已跳轉到登入頁面')
+  } catch (error) {
+    console.error('登出過程發生錯誤:', error)
+    // 即使發生錯誤，也要確保清除狀態並跳轉
+    adminStore.clearAdminInfo()
+    localStorage.removeItem('adminToken')
+    window.location.href = '/login'
+  }
+}
+
+// 在 onMounted 中獲取管理員資訊
+onMounted(async () => {
+  // 檢查是否有 token
+  const token = localStorage.getItem('adminToken')
+  if (token) {
+    try {
+      // 獲取管理員資訊
+      await adminStore.fetchAdminInfo()
+    } catch (error) {
+      console.error('獲取管理員資訊失敗:', error)
+      // 如果獲取失敗，清除 token
+      localStorage.removeItem('adminToken')
+    }
+  }
+})
 </script>
-<style></style>
+<style scoped>
+.header-profile .nav-link {
+    display: flex;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+</style>

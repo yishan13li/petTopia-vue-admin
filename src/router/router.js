@@ -5,6 +5,13 @@ import Login from '@/views/Login.vue';
 import ShopOrders from '@/views/shop/ShopOrders.vue';
 import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
 
+import ManageVendor from '@/views/vendor/ManageVendor.vue';
+import ManageCertification from '@/views/vendor/ManageCertification.vue';
+
+
+import ShopProducts from '@/views/shop/ShopProducts.vue';
+
+
 const routes = [
     {
         path: '/',       // 當用戶訪問根路徑 (/) 時，顯示 Home 頁面
@@ -25,6 +32,21 @@ const routes = [
         path: '/manage/shop/productReviews',
         name: 'ShopProductReviews',
         component: ShopProductReviews
+    },
+    {
+        path: '/manage/vendor/certification',
+        name: 'ManageCertification',
+        component: ManageCertification
+    },
+    {
+        path: '/manage/vendor',
+        name: 'ManageVendor',
+        component: ManageVendor
+    },
+    {
+        path: '/manage/shop/products',
+        name: 'ShopProducts',
+        component: ShopProducts
     },
 
     // 可以根據需要添加更多路由
