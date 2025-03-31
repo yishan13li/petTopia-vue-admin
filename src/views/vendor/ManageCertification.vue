@@ -2,13 +2,13 @@
     <div class="content-body">
         <div class="container-fluid">
             <div class="container mt-4">
-                <h2 class="mb-4">商家管理</h2>
+                <h2 class="mb-4">認證管理</h2>
 
                 <!-- 商家列表 -->
                 <table class="table table-bordered table-hover shadow-sm rounded" id="vendorsTable">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th>#</th>
                             <th>商家ID</th>
                             <th>名稱</th>
                             <th>申請標語</th>
@@ -21,8 +21,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="certification in filteredCertifications" :key="certification.certificationId">
-                            <td><input type="checkbox" :value="certification.id"></td>
+                        <tr v-for="(certification, index) in filteredCertifications"
+                            :key="certification.certificationId">
+                            <td>{{ index + 1 }}</td>
                             <td>{{ certification.vendor.id }}</td>
                             <td>{{ certification.vendor.name }}</td>
                             <td>{{ certification.certificationTags[0]?.tagName || '無標籤' }}</td>
@@ -55,7 +56,7 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">输入原因</h5>
+                                <h5 class="modal-title">輸入原因</h5>
                                 <button type="button" class="close" @click="closeModal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -69,6 +70,9 @@
                                     </div>
                                     <button type="submit" class="btn btn-primary">提交</button>
                                     <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
+                                    <button class="btn btn-secondary"
+                                        @click="operationType === '已認證' ? updateDemoData1() : updateDemoData2()"
+                                        type="button">Demo</button>
                                 </form>
                             </div>
                         </div>
@@ -90,6 +94,15 @@ const showModal = ref(false);
 const reason = ref('');
 let currentCertification = null;
 let currentStatus = '';
+const operationType = ref('');
+
+const updateDemoData1 = () => {
+    reason.value = '符合認證標準';
+};
+const updateDemoData2 = () => {
+    reason.value = '未符合認證標準';
+};
+
 // 定义响应数据的存储
 const certificationsWithTags = ref([]);
 const selectedFilters = ref({
@@ -100,6 +113,7 @@ const selectedFilters = ref({
 const openModal = (certification, status) => {
     currentCertification = certification;
     currentStatus = status;
+    operationType.value = status;  // 设置操作类型
     showModal.value = true;
 };
 
@@ -126,13 +140,14 @@ const submitCertificationStatus = async () => {
         });
 
         // 更新认证状态后关闭模态框
-        alert('状态更新成功');
+        alert('更新成功');
         closeModal();
         // 重新获取数据，或者根据你的逻辑刷新认证列表
         await getCertificationsWithTags();
+        initializeDataTable();
     } catch (error) {
-        console.error('状态更新失败:', error);
-        alert('更新失败，请稍后再试');
+        console.error('更新失敗:', error);
+        alert('更新失敗');
     }
 };
 
@@ -164,20 +179,6 @@ onMounted(async () => {
     initializeDataTable();
 });
 
-const updateCertificationStatus = async (certificationId, status) => {
-    try {
-        const response = await axios.put(`http://localhost:8080/api/admin/certification/status/update/${certificationId}`, null, {
-            params: {
-                status: status,
-                reason: reson
-            }
-        });
-        console.log("状态更新成功:", response.data);
-        // 更新界面上的认证状态
-    } catch (error) {
-        console.error("状态更新失败:", error);
-    }
-};
 
 // 初始化 DataTable
 const initializeDataTable = () => {
@@ -233,19 +234,6 @@ const filteredCertifications = computed(() => {
     });
 });
 
-// 触发筛选的函数
-const applyFilter = () => {
-    // 在应用筛选后，手动刷新 DataTable，使其加载筛选后的所有数据
-    initializeDataTable();
-};
-
-// 清除筛选的函数
-const clearFilter = () => {
-    selectedFilters.value = {
-        certificationStatus: 'all'
-    };
-    initializeDataTable();  // 清除筛选后重新初始化 DataTable
-};
 </script>
 <style scoped>
 .modal {
