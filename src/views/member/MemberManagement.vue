@@ -9,7 +9,6 @@
                             <tr>
                                 <td><label>搜尋會員</label></td>
                                 <td><label>會員狀態</label></td>
-                                <td><label>註冊日期</label></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -24,11 +23,6 @@
                                         <option value="active">正常</option>
                                         <option value="inactive">停用</option>
                                     </select>
-                                </td>
-                                <td>
-                                    <input v-model="startDate" type="date" class="form-control d-inline-block w-auto">
-                                    <span class="to-text mx-2">到</span>
-                                    <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
                                 </td>
                                 <td>
                                     <div class="d-flex">
@@ -96,52 +90,6 @@
                     </select>
                     <button @click="batchUpdateMembers" class="btn btn-warning"
                         style="margin-left: 10px; margin-right: 10px;">批量更新</button>
-
-                    <button class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#addMemberModal">新增會員</button>
-                </div>
-
-                <!-- 新增會員 Modal -->
-                <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">新增會員</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form @submit.prevent="submitMember">
-                                    <div class="mb-3">
-                                        <label class="form-label">姓名</label>
-                                        <input type="text" class="form-control" v-model="newMember.name">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">電子郵件</label>
-                                        <input type="email" class="form-control" v-model="newMember.email" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">手機號碼</label>
-                                        <input type="tel" class="form-control" v-model="newMember.phone">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">密碼</label>
-                                        <input type="password" class="form-control" v-model="newMember.password">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">生日</label>
-                                        <input type="date" class="form-control" v-model="newMember.birthday">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">地址</label>
-                                        <input type="text" class="form-control" v-model="newMember.address">
-                                    </div>
-                                    <button type="submit" class="btn btn-success">提交</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- 編輯會員 Modal -->
@@ -208,8 +156,6 @@
                             更新日期
                             <i :class="sortDirection === 'registrationDate' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
                         </th>
-                        <th>消費總額</th>
-                        <th>訂單數量</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -226,12 +172,7 @@
                             </span>
                         </td>
                         <td>{{ member.registrationDate }}</td>
-                        <td>${{ member.totalSpent }}</td>
-                        <td>{{ member.orderCount }}</td>
                         <td>
-                            <button class="btn btn-sm btn-secondary" @click="viewDetail(member.memberId)">
-                                <i class="bi bi-eye"></i>
-                            </button>
                             <button class="btn btn-sm btn-info" @click="editMember(member.memberId)">
                                 <i class="bi bi-pencil"></i>
                             </button>
@@ -273,8 +214,6 @@ const isAscending = ref(true);
 // 篩選變量
 const memberKeyword = ref('');
 const memberStatus = ref('');
-const startDate = ref('');
-const endDate = ref('');
 const isAdvancedSearchVisible = ref(false);
 const phoneNumber = ref('');
 const email = ref('');
@@ -283,17 +222,6 @@ const maxSpent = ref('');
 const minOrders = ref('');
 const maxOrders = ref('');
 const batchAction = ref('');
-
-// 新增會員表單
-const newMember = ref({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    level: 'normal',
-    birthday: '',
-    address: ''
-});
 
 // 編輯會員表單
 const editingMember = ref({
@@ -340,8 +268,6 @@ const loadMembers = async () => {
 const clearFilters = () => {
     memberKeyword.value = '';
     memberStatus.value = '';
-    startDate.value = '';
-    endDate.value = '';
     phoneNumber.value = '';
     email.value = '';
     minSpent.value = '';
@@ -377,39 +303,6 @@ const batchUpdateMembers = async () => {
     } catch (error) {
         console.error('批量更新失敗:', error);
     }
-};
-
-const submitMember = async () => {
-    try {
-        const memberData = {
-            email: newMember.value.email,
-            password: newMember.value.password,
-            name: newMember.value.name,
-            phone: newMember.value.phone,
-            birthdate: newMember.value.birthday,
-            gender: false,  // 預設值
-            address: newMember.value.address
-        };
-        
-        await axios.post('/api/admin/members', memberData);
-        $('#addMemberModal').modal('hide');
-        loadMembers();
-        // 重置表單
-        newMember.value = {
-            name: '',
-            email: '',
-            phone: '',
-            password: '',
-            birthday: '',
-            address: ''
-        };
-    } catch (error) {
-        console.error('新增會員失敗:', error);
-    }
-};
-
-const viewDetail = (memberId) => {
-    // TODO: 實現查看會員詳情
 };
 
 const editMember = async (memberId) => {

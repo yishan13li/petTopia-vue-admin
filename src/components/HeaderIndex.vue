@@ -139,7 +139,7 @@
 
                                 <li><router-link to="/manage/shop/productReviews">商品評論管理</router-link></li>
 
-                                <li><a href="table-datatable-basic.html">優惠券管理</a></li>
+                                <li><router-link to="/manage/shop/coupons">優惠券管理</router-link></li>
                                 <li><a href="table-datatable-basic.html">客服管理</a></li>
                                 <li><a href="table-datatable-basic.html">報表分析</a></li>
                             </ul>
