@@ -18,28 +18,30 @@
               <tr>
                 <td>
                   <input v-model="searchOrderId" type="text" class="form-control" placeholder="輸入訂單編號"
-                    style="width: 125px;">
+                    @keyup.enter="loadOrders" style="width: 125px;">
                 </td>
                 <td>
-                  <select v-model="orderStatus" class="form-select">
+                  <select v-model="orderStatus" class="form-select" @change="loadOrders">
                     <option value="">全部</option>
                     <option v-for="status in orderStatusList" :key="status" :value="status">{{ status }}</option>
                   </select>
                 </td>
                 <td>
-                  <select v-model="paymentStatus" class="form-select">
+                  <select v-model="paymentStatus" @change="loadOrders" class="form-select">
                     <option value="">全部</option>
                     <option v-for="status in paymentStatusList" :key="status" :value="status">{{ status }}</option>
                   </select>
                 </td>
                 <td>
-                  <input v-model="startDate" type="date" class="form-control d-inline-block w-auto">
+                  <input v-model="startDate" type="date" class="form-control d-inline-block w-auto"
+                    @keyup.enter="loadOrders">
                   <span class="to-text mx-2">到</span>
-                  <input v-model="endDate" type="date" class="form-control d-inline-block w-auto">
+                  <input v-model="endDate" type="date" class="form-control d-inline-block w-auto"
+                    @keyup.enter="loadOrders">
                 </td>
                 <td>
                   <div class="d-flex">
-                    <button @click="loadOrders" class="btn btn-primary">篩選</button>
+                    <button @click="loadOrders" class="btn btn-primary" @keyup.enter="loadOrders">篩選</button>
                     <button @click="clearFilters" class="btn btn-secondary ms-2">清除</button>
                   </div>
                 </td>
@@ -62,21 +64,21 @@
                 <tr>
                   <td>
                     <input v-model="productKeyword" type="text" class="form-control" placeholder="輸入商品編號或名稱"
-                      style="width: 200px;">
+                      style="width: 200px;" @keyup.enter="loadOrders">
                   </td>
                   <td>
                     <input v-model="memberId" type="text" class="form-control" placeholder="輸入會員編號"
-                      style="width: 125px;">
+                      style="width: 125px;" @keyup.enter="loadOrders">
                   </td>
                   <td>
-                    <select v-model="paymentCategory" class="form-select">
+                    <select v-model="paymentCategory" class="form-select" @keyup.enter="loadOrders">
                       <option value="">全部</option>
                       <option v-for="category in paymentCategoryList" :key="category" :value="category">{{ category }}
                       </option>
                     </select>
                   </td>
                   <td>
-                    <select v-model="shippingCategory" class="form-select">
+                    <select v-model="shippingCategory" class="form-select" @keyup.enter="loadOrders">
                       <option value="">全部</option>
                       <option v-for="category in shippingCategoryList" :key="category" :value="category">{{ category }}
                       </option>

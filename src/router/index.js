@@ -52,20 +52,13 @@ const routes = [
     path: '/manage/shop/productReviews',
     name: 'ShopProductReviews',
     component: ShopProductReviews,
-    props: { title: '庫存管理' },
+    props: { title: '商品評論管理' },
     meta: { requiresAuth: true }
   },
   {
     path: '/manage/shop/coupons',
     name: 'Coupons',
     component: CouponManagement,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/manage/shop/customer-service',
-    name: 'CustomerService',
-    component: PlaceholderPage,
-    props: { title: '客服管理' },
     meta: { requiresAuth: true }
   },
   {
