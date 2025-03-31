@@ -2,8 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAdminStore } from '../stores/adminStore'
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/Dashboard.vue'
-import ShopOrders from '@/views/shop/ShopOrders.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
+import ShopOrders from '@/views/shop/ShopOrders.vue';
+import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
+
 import MemberManagement from '@/views/member/MemberManagement.vue'
 import PlaceholderPage from '@/components/PlaceholderPage.vue'
 
@@ -31,21 +33,23 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/manage/shop/orders',
-    name: 'ShopOrders',
-    component: ShopOrders,
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/manage/shop/products',
     name: 'ShopProducts',
     component: ShopProducts,
+    props: { title: '商品管理' },
     meta: { requiresAuth: true }
   },
   {
-    path: '/manage/shop/inventory',
-    name: 'Inventory',
-    component: PlaceholderPage,
+    path: '/manage/shop/orders',
+    name: 'ShopOrders',
+    component: ShopOrders,
+    props: { title: '訂單管理' },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/shop/productReviews',
+    name: 'ShopProductReviews',
+    component: ShopProductReviews,
     props: { title: '庫存管理' },
     meta: { requiresAuth: true }
   },
