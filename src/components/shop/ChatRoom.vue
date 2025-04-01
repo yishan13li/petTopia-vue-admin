@@ -74,7 +74,7 @@ const uploadedImages = ref([]); // 上傳的圖片
 const fileInputRef = ref(null);    // 
 
 const selectedUser = ref(null); // 當前選擇的用戶
-const saId = 20; //FIXME: 20號假設為sa
+const saId = 23; //FIXME: 假設為saId
 
 onMounted(async () => {
     fetchChatUsers();
