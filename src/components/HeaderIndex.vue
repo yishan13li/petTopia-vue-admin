@@ -9,7 +9,7 @@
             <div class="nav-header">
 
                 <div class="nav-header">
-                    <a href="index.html" class="brand-logo">
+                    <a href="http://localhost:5174/" class="brand-logo">
                         <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
                         <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
                         <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
@@ -266,5 +266,11 @@ onMounted(async () => {
 .dropdown-item i {
     margin-right: 0.5rem;
     font-size: 1.1rem;
+}
+
+/* 新增 brand-logo 樣式 */
+.brand-logo {
+    transform: scale(1.5);
+    transform-origin: left center;
 }
 </style>
