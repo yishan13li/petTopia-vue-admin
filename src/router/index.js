@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAdminStore } from '../stores/adminStore'
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/Dashboard.vue'
+import ShopDashboard from '@/views/shop/ShopDashboard.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
 import ShopOrders from '@/views/shop/ShopOrders.vue';
 import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
@@ -32,6 +33,12 @@ const routes = [
     path: '/manage/members',
     name: 'MemberManagement',
     component: MemberManagement,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/shop/dashboard',
+    name: 'ShopDashboard',
+    component: ShopDashboard,
     meta: { requiresAuth: true }
   },
   {

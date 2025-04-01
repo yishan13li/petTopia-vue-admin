@@ -217,7 +217,7 @@
                             <button class="btn btn-sm btn-info" @click="editCoupon(coupon.id)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="handleDeleteCoupon(coupon.id)">
+                            <button class="btn btn-sm btn-danger ml-2" @click="handleDeleteCoupon(coupon.id)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -410,7 +410,7 @@ const getStatusText = (status) => {
         case 'expired':
             return '已過期';
         default:
-            return '未知';
+            return '啟用中';
     }
 };
 

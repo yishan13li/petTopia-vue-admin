@@ -9,11 +9,11 @@
             <div class="nav-header">
 
                 <div class="nav-header">
-                    <a href="index.html" class="brand-logo">
-                        <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
-                        <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
-                        <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-                    </a>
+                    <router-link to="/dashboard" class="brand-logo">
+                    <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+                    <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+                    <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
+                </router-link>
                 </div>
 
                 <div class="nav-control">
@@ -128,20 +128,19 @@
                             </ul>
                         </li>
 
-                        <li><router-link to="/manage/shop/orders" class="has-arrow" href="javascript:void()"
+                        <li><router-link to="/shop/dashboard" class="has-arrow" href="javascript:void()"
                                 aria-expanded="false"><i class="bi bi-cart"></i><span
                                     class="nav-text">商城管理</span></router-link>
                             <ul aria-expanded="false">
 
-				<li><router-link to="/manage/shop/products">商品管理</router-link></li>
+                                <li><router-link to="/manage/shop/products">商品管理</router-link></li>
 
                                 <li><router-link to="/manage/shop/orders">訂單管理</router-link></li>
 
                                 <li><router-link to="/manage/shop/productReviews">商品評論管理</router-link></li>
 
                                 <li><router-link to="/manage/shop/coupons">優惠券管理</router-link></li>
-                                <li><a href="table-datatable-basic.html">客服管理</a></li>
-                                <li><a href="table-datatable-basic.html">報表分析</a></li>
+
                             </ul>
                         </li>
 

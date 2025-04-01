@@ -27,7 +27,7 @@
                   </select>
                 </td>
                 <td>
-                  <select v-model="paymentStatus" @change="loadOrders" class="form-select">
+                  <select v-model="paymentStatus" @change="loadOrders" class="form-select" >
                     <option value="">全部</option>
                     <option v-for="status in paymentStatusList" :key="status" :value="status">{{ status }}</option>
                   </select>
@@ -71,14 +71,14 @@
                       style="width: 125px;" @keyup.enter="loadOrders">
                   </td>
                   <td>
-                    <select v-model="paymentCategory" class="form-select" @keyup.enter="loadOrders">
+                    <select v-model="paymentCategory" class="form-select" @change="loadOrders">
                       <option value="">全部</option>
                       <option v-for="category in paymentCategoryList" :key="category" :value="category">{{ category }}
                       </option>
                     </select>
                   </td>
                   <td>
-                    <select v-model="shippingCategory" class="form-select" @keyup.enter="loadOrders">
+                    <select v-model="shippingCategory" class="form-select" @change="loadOrders">
                       <option value="">全部</option>
                       <option v-for="category in shippingCategoryList" :key="category" :value="category">{{ category }}
                       </option>
@@ -99,7 +99,7 @@
 
         <div class="mb-4 ms-4">
           <label class="revise">批量更新狀態：</label>
-          <select v-model="batchStatus" class="form-select d-inline-block w-auto">
+          <select v-model="batchStatus" class="form-select d-inline-block w-auto" style="min-width: 120px;">
             <option value="" disabled selected>請選擇狀態</option>
             <option value="已付款">已付款</option>
             <option value="配送中">配送中</option>

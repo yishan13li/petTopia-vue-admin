@@ -47,3 +47,27 @@ export const searchReviews = async (keyword, page = 1, size = 5) => {
       }
     }
   };
+
+  //==============評分統計===================
+
+  // 獲取評分最高的前 5 名商品
+export const getTop5ProductsByAverageRating = async () => {
+  try {
+      const response = await axios.get(`${URL}/manage/shop/review/ratingTop5Product`);
+      return response.data; // 返回商品資料
+  } catch (error) {
+      console.error('Error fetching top 5 products:', error);
+      throw error; // 丟出錯誤
+  }
+};
+
+// 獲取評分最高的前 3 名商品種類
+export const getTop3ProductDetailsByAverageRating = async () => {
+  try {
+      const response = await axios.get(`${URL}/manage/shop/review/ratingTop3ProductDetail`);
+      return response.data; // 返回商品種類資料
+  } catch (error) {
+      console.error('Error fetching top 3 product details:', error);
+      throw error; // 丟出錯誤
+  }
+};

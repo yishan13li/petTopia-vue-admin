@@ -98,3 +98,14 @@ export const deleteOneOrder = async (orderId) => {
     return null;  
   }
 };
+
+//銷量最好的已完成訂單商品
+export const getTop5BestSellingProducts = async () => {
+  try {
+    const response = await axios.get(`${URL}/manage/shop/orders/top5BestSellingProducts`);
+    return response.data; // 返回 API 回傳的數據
+  } catch (error) {
+    console.error('Error fetching top 5 best selling products:', error);
+    throw error; // 重新拋出錯誤，讓呼叫方處理
+  }
+};
