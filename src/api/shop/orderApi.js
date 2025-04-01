@@ -109,3 +109,25 @@ export const getTop5BestSellingProducts = async () => {
     throw error; // 重新拋出錯誤，讓呼叫方處理
   }
 };
+
+//每日、每月、每年銷售額
+export async function getSalesData() {
+  try {
+      const response = await axios.get(`${URL}/manage/shop/orders/sales`);
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching sales data:', error);
+      throw error;
+  }
+}
+
+//商品種類銷量
+export const getCategorySales = async () => {
+  try {
+    const response = await axios.get(`${URL}/manage/shop/orders/category-sales`);
+    return response.data.data;  
+  } catch (error) {
+    console.error('Error fetching category sales data:', error);
+    throw new Error('Could not fetch category sales data.');
+  }
+};

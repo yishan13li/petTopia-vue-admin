@@ -10,25 +10,11 @@
 
                 <div class="nav-header">
                     <router-link to="/dashboard" class="brand-logo">
-                    <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
-                    <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
-                    <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-                </router-link>
+                        <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+                        <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+                        <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
+                    </router-link>
                 </div>
-
-                <div class="nav-control">
-                    <div class="hamburger">
-                        <span class="line"></span><span class="line"></span><span class="line"></span>
-                    </div>
-                </div>
-
-
-                <router-link to="/dashboard" class="brand-logo">
-                    <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
-                    <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
-                    <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-                </router-link>
-
 
             </div>
 
@@ -160,7 +146,7 @@
             </div>
         </div>
 
-</header>
+    </header>
 
 </template>
 <script setup>
