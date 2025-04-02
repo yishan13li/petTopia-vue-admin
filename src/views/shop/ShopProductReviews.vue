@@ -4,27 +4,28 @@
       <div class="mt-2">
         <h2 class="mb-4">商品評論管理</h2>
         <div class="mb-3">
-
           <table class="filter-table">
             <thead>
-              <tr>
-                <td><label>搜尋商品、會員或評論</label></td>
-              </tr>
             </thead>
             <tbody>
               <tr>
+                <td><select v-model="sortBy" @change="loadReviews" class="form-select">
+                    <option value="time">時間</option>
+                    <option value="rating">評分</option>
+                    <option value="id">編號</option>
+                  </select></td>
                 <td>
-                  <input v-model="searchOrderId" type="text" class="form-control" placeholder="輸入商品、會員編號 或 評論描述"
-                    style="width: 300px;">
+                  <input v-model="searchKeyword" type="text" class="form-control" @keyup.enter="loadReviews"
+                    placeholder="輸入評論、商品、會員編號 或 評論描述" style="width: 300px;">
                 </td>
 
                 <div class="d-flex ">
-                  <button @click="loadOrders" class="btn btn-primary">查詢</button>
+                  <button @click="loadReviews" class="btn btn-primary">查詢</button>
+                  <button @click="clearFilter" class="btn btn-warning ml-3">清除</button>
                 </div>
               </tr>
             </tbody>
           </table>
-
         </div>
       </div>
 
@@ -32,83 +33,57 @@
       <table class="table table-hover">
         <thead class="tr_list_title">
           <tr>
-
-            <th @click="sortBy('orderDetail.orderId')">
-              評論編號
-              <i :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
-                : 'fas fa-sort'"></i>
-            </th>
-            <th @click="sortBy('orderDetail.orderId')">
-              商品編號
-              <i :class="sortDirection === 'orderDetail.orderId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
-                : 'fas fa-sort'"></i>
-            </th>
-            <th @click="sortBy('orderDetail.orderDate')">
-              會員編號
-              <i :class="sortDirection === 'orderDetail.orderDate'
-                ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
-                : 'fas fa-sort'">
-              </i>
-            </th>
-            <th @click="sortBy('orderDetail.memberId')">
-              評分
-              <i :class="sortDirection === 'orderDetail.memberId' ? (isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down')
-                : 'fas fa-sort'"></i>
-            </th>
+            <th>評論編號</th>
+            <th>商品編號</th>
+            <th>商品 (顏色/尺寸)</th>
+            <th>會員編號</th>
+            <th>評分</th>
             <th>描述</th>
-            <th>照片</th>
+            <th>評論時間</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="order in orders" :key="order.orderId">
-
-            <td v-if="editingOrderId === order.orderId">
-            </td>
-            <td v-else>{{ order.orderStatus }}</td>
-            <td>{{ order.orderId }}</td>
-            <td>{{ order.orderDate }}</td>
-            <td>{{ order.memberId }}</td>
-
-            <!-- 總金額 -->
-            <td v-if="editingOrderId === order.orderId">
-              <input type="text" v-model="editableOrder.totalAmount" class="revise-control" style="width: 100px;">
-            </td>
-            <td v-else>$ {{ order.totalAmount }}</td>
-
-            <!-- 備註 -->
-            <td v-if="editingOrderId === order.orderId">
-              <textarea v-model="editableOrder.note" class="revise-control"
-                style="width: 100%; height: 50px;"></textarea>
-            </td>
-            <td v-else>
-              <span tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top"
-                :data-bs-content="order.note">
-                {{ order.note && order.note.length > 10 ? order.note.substring(0, 10) + '...' : order.note }}
+          <tr v-for="review in reviews" :key="review.id">
+            <td>{{ review.reviewId }}</td>
+            <td>{{ review.productId }}</td>
+            <td>
+              {{ review.productName }}
+              <br>
+              <span
+                v-if="(review.productColor && review.productColor !== '無') && (review.productSize && review.productSize !== '無')">
+                ({{ review.productColor }}/{{ review.productSize }})
+              </span>
+              <span v-else-if="review.productColor && review.productColor !== '無'">
+                ({{ review.productColor }})
+              </span>
+              <span v-else-if="review.productSize && review.productSize !== '無'">
+                ({{ review.productSize }})
               </span>
             </td>
 
+
+            <td>{{ review.memberId }}</td>
+            <td>{{ review.rating }}</td>
             <td>
-              <button class="btn btn-sm btn-secondary" @click="viewDetail(order.orderId)">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button v-if="editingOrderId === order.orderId" class="btn btn-sm btn-success"
-                @click="saveOrder(order.orderId)">
-                <i class="bi bi-check-circle"></i>
-              </button>
-              <button v-if="editingOrderId !== order.orderId" class="btn btn-sm btn-info" @click="editOrder(order)">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-danger" @click="deleteOrder(order.orderId)">
+              <div class="review-content">
+                <p>{{ review.reviewDescription }}</p>
+                <div v-if="review.productReviewPhoto && review.productReviewPhoto.length > 0">
+                  <img v-for="(photo, index) in review.productReviewPhoto" :key="index"
+                    :src="`data:image/jpeg;base64,${photo.reviewPhotos}`" class="img-thumbnail" alt="Review Photo">
+                </div>
+              </div>
+            </td>
+            <td>{{ formatDate(review.reviewTime) }}</td>
+
+            <td>
+              <button class="btn btn-sm btn-danger" @click="handleDeleteReview(review.reviewId)">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-
-      <!-- 顯示訂單詳情 Modal -->
-      <OrderDetailModal :order-detail="orderDetail" />
 
       <!-- 顯示查無資料訊息 -->
       <div v-if="message" class="no-data-message">
@@ -135,101 +110,125 @@
           </li>
         </ul>
         <div class="total-records">
-          <span>總共 <strong> &nbsp{{ totalElements }}&nbsp </strong> 筆 資料</span>
+          <span>總共 <strong>{{ totalElements }}</strong> 筆 資料</span>
         </div>
       </nav>
-
     </div>
   </div>
-
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted } from 'vue';
+import { getReviews } from '@/api/shop/productReviewApi';
+import { searchReviews } from '@/api/shop/productReviewApi';
+import { deleteReview } from '@/api/shop/productReviewApi';
 import Swal from 'sweetalert2';
-import { Popover } from 'bootstrap';
-import { fetchManageOrders } from '@/api/shop/orderApi';
-import { fetchOrderOptions } from '@/api/shop/orderApi';
-import { fetchManageOrderDetail } from '@/api/shop/orderApi';
-import { updateOrder } from '@/api/shop/orderApi';
-import { UpdateBatchOrders } from '@/api/shop/orderApi';
-import OrderDetailModal from '@/components/shop/OrderDetailModal.vue';
-import { deleteOneOrder } from '@/api/shop/orderApi';
 
-//===========取得訂單options=================
-const orderStatusList = ref([]);
-const paymentStatusList = ref([]);
-const paymentCategoryList = ref([]);
-const shippingCategoryList = ref([]);
-const hasFetchedOptions = ref(false);
-
-const getOrderOptions = async () => {
-  if (hasFetchedOptions.value) return; // 避免重複請求
-  const data = await fetchOrderOptions();
-  if (data) {
-    orderStatusList.value = data.orderStatusList;
-    paymentStatusList.value = data.paymentStatusList;
-    paymentCategoryList.value = data.paymentCategoryList;
-    shippingCategoryList.value = data.shippingCategoryList;
-    hasFetchedOptions.value = true; // 標記已經請求過
-  }
-};
-
-//==================取得訂單資料(包含篩選)==============
-//訂單資訊
-const orders = ref([]);
-const searchOrderId = ref('');
-const productKeyword = ref('');
-const memberId = ref('');
-const orderStatus = ref('');
-const paymentStatus = ref('');
-const paymentCategory = ref('');
-const shippingCategory = ref('');
-const startDate = ref('');
-const endDate = ref('');
-const message = ref('');
+const reviews = ref([]);
+const searchKeyword = ref('');
 
 //分頁資訊
 const currentPage = ref(1); // 當前頁數
-const pageSize = ref(10);    // 每頁顯示的數量
 const totalPages = ref(1);   // 總頁數
 const totalElements = ref(0); // 總資料數
+const message = ref('');
+const sortBy = ref('time');
 
-const loadOrders = async () => {
+const loadReviews = async () => {
   try {
-    const filters = {
-      orderId: searchOrderId.value.trim() || null,
-      productKeyword: productKeyword.value.trim() || null,
-      memberId: memberId.value.trim() || null,
-      orderStatus: orderStatus.value !== '' ? orderStatus.value : null,
-      paymentStatus: paymentStatus.value !== '' ? paymentStatus.value : null,
-      paymentCategory: paymentCategory.value !== '' ? paymentCategory.value : null,
-      shippingCategory: shippingCategory.value !== '' ? shippingCategory.value : null,
-      startDate: startDate.value || null,
-      endDate: endDate.value || null,
-      page: currentPage.value,   // 使用當前頁數
-      size: pageSize.value,      // 每頁大小
-    };
+    let data;
+    message.value = '';
 
-    const data = await fetchManageOrders(filters);
-
-    // 如果回傳的狀態是 204，顯示查無資料
-    if (data.status === 204) {
-      orders.value = []; // 清空資料
-      totalPages.value = 1; // 重設總頁數
-      totalElements.value = 0; // 重設總資料數
-      message.value = "查無相關資料"; // 設定訊息
-      return;  // 不再繼續執行
+    if (searchKeyword.value) {
+      data = await searchReviews(searchKeyword.value, currentPage.value, 10);
+    } else {
+      data = await getReviews(currentPage.value, 10, sortBy.value); // 使用 getReviews 函數並傳入 sortBy 參數
     }
 
-    if (data) {
-      orders.value = data.manageOrders.content;
-      totalPages.value = data.manageOrders.totalPages; // 更新總頁數
-      totalElements.value = data.manageOrders.totalElements; // 更新總資料數
-      message.value = "";
+    // 確保 data 存在，避免 undefined 錯誤
+    if (!data || !data.content || data.content.length === 0) {
+      reviews.value = [];
+      message.value = '查無資料';
+      totalPages.value = 1;
+      totalElements.value = 0;
+      return; // 避免繼續執行
     }
+
+    // 正常處理數據
+    reviews.value = data.content;
+    totalPages.value = data.totalPages;
+    totalElements.value = data.totalElements;
   } catch (error) {
-    console.error('Error loading orders:', error);
+    console.error('無法載入評論:', error);
+
+    // 這裡應該是發生錯誤，而不是查無資料
+    reviews.value = [];
+    message.value = '載入評論資料時發生錯誤';
+    totalPages.value = 1;
+    totalElements.value = 0;
+  }
+};
+
+
+const formatDate = (dateString) => {
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true, // 使用 12 小時制
+  };
+
+  const date = new Date(dateString); // ISO 8601 格式會自動被 JavaScript Date 解析
+  return date.toLocaleString('zh-TW', options); // 轉換為台灣的時間格式
+};
+
+onMounted(() => {
+  loadReviews();
+});
+
+const clearFilter = () => {
+  searchKeyword.value = ''; // 清空搜尋關鍵字
+  currentPage.value = 1; // 回到第一頁，避免停留在錯誤的分頁
+  loadReviews(); // 重新載入原始評論列表
+};
+
+//刪除評論
+const handleDeleteReview = async (reviewId) => {
+  // 先顯示確認彈窗
+  const result = await Swal.fire({
+    title: '確定要刪除這則評論嗎？',
+    text: '此操作無法復原!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: '刪除',
+    cancelButtonText: '取消'
+  });
+
+  // 如果使用者確認刪除
+  if (result.isConfirmed) {
+    try {
+      const response = await deleteReview(reviewId);
+
+      Swal.fire({
+        icon: 'success',
+        title: '刪除成功!',
+        text: '評論已刪除',
+        confirmButtonText: '確定'
+      });
+      loadReviews();
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: '刪除失敗!',
+        text: '評論未刪除',
+        confirmButtonText: '確定'
+      });
+    }
   }
 };
 
@@ -237,7 +236,7 @@ const loadOrders = async () => {
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value += 1;
-    loadOrders(); // 載入新頁的訂單
+    loadReviews();
   }
 };
 
@@ -245,7 +244,7 @@ const nextPage = () => {
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value -= 1;
-    loadOrders(); // 載入新頁的訂單
+    loadReviews();
   }
 };
 
@@ -253,319 +252,7 @@ const prevPage = () => {
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
-    loadOrders(); // 載入指定頁的訂單
-  }
-};
-
-// 是否顯示進階搜尋
-const isAdvancedSearchVisible = ref(false);
-
-//===========訂單詳情=============
-const orderDetail = ref();
-
-const viewDetail = async (orderId) => {
-  try {
-    const data = await fetchManageOrderDetail(orderId);
-    orderDetail.value = data;
-
-    const modalElement = document.getElementById('orderDetailModal');
-    if (modalElement) {
-      const myModal = new bootstrap.Modal(modalElement); // 改用 new Modal()
-      myModal.show();
-    } else {
-      console.error("找不到 orderDetailModal，請確認 DOM 是否正確渲染");
-    }
-  } catch (error) {
-    console.error('Failed to fetch order detail:', error);
-  }
-};
-
-onMounted(() => {
-  loadOrders();
-  getOrderOptions();
-  initPopovers();
-});
-
-//備註的popover
-const initPopovers = () => {
-  nextTick(() => {
-    document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
-      new Popover(el);
-    });
-  });
-};
-
-// 監聽 orders 變化，確保新元素有 Popover
-watch(() => orders, () => {
-  initPopovers();
-}, { deep: true });
-
-//清除篩選
-const clearFilters = () => {
-  searchOrderId.value = '';
-  productKeyword.value = '';
-  memberId.value = '';
-  orderStatus.value = '';
-  paymentStatus.value = '';
-  paymentCategory.value = '';
-  shippingCategory.value = '';
-  startDate.value = '';
-  endDate.value = '';
-  loadOrders();
-};
-
-//===============sortby===========
-const sortDirection = ref('');
-const isAscending = ref(true);
-
-const sortBy = (field) => {
-  if (sortDirection.value === field) {
-    isAscending.value = !isAscending.value;
-  } else {
-    sortDirection.value = field;
-    isAscending.value = true;
-  }
-
-  orders.value.sort((a, b) => {
-    const aValue = a[field];
-    const bValue = b[field];
-
-    if (isAscending.value) {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
-};
-
-//==================編輯單一訂單=================
-const editingOrderId = ref(null);
-const editableOrder = ref({});
-
-const editOrder = (order) => {
-  if (editingOrderId.value !== null) {
-    Swal.fire({
-      icon: 'warning',
-      title: '請先完成當前編輯',
-      text: '請先儲存或取消當前的編輯，才能編輯其他訂單。',
-      confirmButtonText: '確定'
-    });
-    return;
-  }
-  editingOrderId.value = order.orderId;
-  editableOrder.value = { ...order };
-};
-
-// 儲存修改>>putmapping
-const saveOrder = async (orderId) => {
-  const originalOrder = orders.value.find(o => o.orderId === orderId);
-
-  // 比對有修改過的欄位
-  const modifiedOrder = {};
-
-  // 比對每個欄位，只有不相等的欄位才會被記錄
-  if (originalOrder.orderStatus !== editableOrder.value.orderStatus) {
-    modifiedOrder.orderStatus = editableOrder.value.orderStatus;
-  }
-  if (originalOrder.paymentStatus !== editableOrder.value.paymentStatus) {
-    modifiedOrder.paymentStatus = editableOrder.value.paymentStatus;
-  }
-  if (originalOrder.paymentCategory !== editableOrder.value.paymentCategory) {
-    modifiedOrder.paymentCategory = editableOrder.value.paymentCategory;
-  }
-  if (originalOrder.shippingCategory !== editableOrder.value.shippingCategory) {
-    modifiedOrder.shippingCategory = editableOrder.value.shippingCategory;
-  }
-  if (originalOrder.totalAmount !== editableOrder.value.totalAmount) {
-    modifiedOrder.totalAmount = editableOrder.value.totalAmount;
-  }
-  if (originalOrder.note !== editableOrder.value.note) {
-    modifiedOrder.note = editableOrder.value.note;
-  }
-
-  // 如果沒有任何欄位被修改
-  if (Object.keys(modifiedOrder).length === 0) {
-    Swal.fire({
-      title: '未修改資料',
-      text: '您沒有更改任何內容。',
-      icon: 'info',
-      timer: 1000,
-      showConfirmButton: false
-    });
-
-    // **退出編輯模式**
-    editingOrderId.value = null;
-
-    // 確保 Vue 更新完成後再重新初始化 Popover
-    nextTick(() => {
-      initPopovers();
-    });
-
-    return;
-  }
-
-  // 確認修改 SweetAlert
-  const result = await Swal.fire({
-    title: '確定要修改嗎?',
-    text: '此操作無法復原!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-    reverseButtons: true,
-  });
-
-  if (result.isConfirmed) {
-    try {
-      // 呼叫 updateOrder 函數更新訂單
-      await updateOrder(orderId, modifiedOrder);
-
-      // 更新前端資料
-      const index = orders.value.findIndex(o => o.orderId === orderId);
-      if (index !== -1) {
-        orders.value[index] = { ...editableOrder.value };
-      }
-      editingOrderId.value = null;
-
-      Swal.fire({
-        title: '修改成功!',
-        text: '訂單資料已更新。',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      });
-    } catch (error) {
-      Swal.fire({
-        title: '修改失敗!',
-        text: '請稍後再試。',
-        icon: 'error',
-        confirmButtonText: '確定'
-      });
-    }
-  }
-};
-
-//=============批量更新===================
-const selectedOrders = ref([]);
-const selectAll = ref(false);
-const batchStatus = ref("");
-
-// 監聽 selectedOrders 變化，控制 selectAll 狀態
-watch(selectedOrders, (newVal) => {
-  if (newVal.length === orders.value.length) {
-    selectAll.value = true;
-  } else {
-    selectAll.value = false;
-  }
-});
-
-// 切換全選
-const toggleAll = () => {
-  if (selectAll.value) {
-    selectedOrders.value = orders.value.map(order => order.orderId);
-  } else {
-    selectedOrders.value = [];
-  }
-};
-
-// 批量更新
-const batchUpdateOrders = async () => {
-  if (!batchStatus.value) {
-    Swal.fire({
-      title: '請選擇狀態',
-      icon: 'warning',
-      timer: 1500,
-      showConfirmButton: false,
-    });
-    return;
-  }
-
-  const updatedOrders = {
-    orderIds: selectedOrders.value.join(','),
-    batchStatus: batchStatus.value,
-  };
-
-  try {
-    const result = await Swal.fire({
-      title: '確定要批量更新訂單狀態嗎?',
-      text: '此操作無法復原!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: '確定',
-      cancelButtonText: '取消',
-      reverseButtons: true,
-    });
-
-    if (result.isConfirmed) {
-      await UpdateBatchOrders(updatedOrders);
-      Swal.fire({
-        title: '批量更新成功!',
-        text: '訂單狀態已更新。',
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false,
-      });
-      selectedOrders.value = [];
-      selectAll.value = false;
-      loadOrders(); // 重新獲取訂單列表
-    }
-  } catch (error) {
-    Swal.fire({
-      title: '批量更新失敗!',
-      text: '請稍後再試。',
-      icon: 'error',
-      confirmButtonText: '確定',
-    });
-  }
-};
-
-//==============刪除單一訂單================
-const deleteOrder = async (orderId) => {
-  try {
-    const result = await Swal.fire({
-      title: '確定要刪除這筆訂單嗎?',
-      text: '此操作無法復原!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: '確定',
-      cancelButtonText: '取消',
-      reverseButtons: true,
-    });
-
-    if (result.isConfirmed) {
-      const deleteResult = await deleteOneOrder(orderId);
-
-      if (deleteResult) {
-        orders.value = orders.value.filter(order => order.orderId !== orderId);
-        Swal.fire({
-          title: '訂單刪除成功!',
-          text: '訂單已被刪除。',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      } else {
-        Swal.fire({
-          title: '刪除訂單失敗!',
-          text: '請稍後再試。',
-          icon: 'error',
-          confirmButtonText: '確定',
-        });
-      }
-    }
-  } catch (error) {
-    Swal.fire({
-      title: '刪除訂單時出錯!',
-      text: '請稍後再試。',
-      icon: 'error',
-      confirmButtonText: '確定',
-    });
+    loadReviews();
   }
 };
 
@@ -652,5 +339,16 @@ option {
   text-align: center;
   font-size: larger;
   padding: 100px;
+}
+
+.review-content img {
+  max-width: 80px;
+  /* 設定圖片的最大寬度 */
+  max-height: 80px;
+  /* 設定圖片的最大高度 */
+  margin-right: 10px;
+  margin-bottom: 10px;
+  object-fit: cover;
+  /* 保持圖片比例不變並裁剪 */
 }
 </style>

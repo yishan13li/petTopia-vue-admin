@@ -2,13 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAdminStore } from '../stores/adminStore'
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/Dashboard.vue'
+import ShopDashboard from '@/views/shop/ShopDashboard.vue'
 import ShopProducts from '@/views/shop/ShopProducts.vue'
 import ShopOrders from '@/views/shop/ShopOrders.vue';
 import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
 
 import MemberManagement from '@/views/member/MemberManagement.vue'
+import CouponManagement from '@/views/shop/CouponManagement.vue'
 import PlaceholderPage from '@/components/PlaceholderPage.vue'
-
+import ManageVendor from '@/views/vendor/ManageVendor.vue';
+import ManageCertification from '@/views/vendor/ManageCertification.vue';
 const routes = [
   {
     path: '/',
@@ -33,6 +36,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/shop/dashboard',
+    name: 'ShopDashboard',
+    component: ShopDashboard,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/manage/shop/products',
     name: 'ShopProducts',
     component: ShopProducts,
@@ -50,21 +59,13 @@ const routes = [
     path: '/manage/shop/productReviews',
     name: 'ShopProductReviews',
     component: ShopProductReviews,
-    props: { title: '庫存管理' },
+    props: { title: '商品評論管理' },
     meta: { requiresAuth: true }
   },
   {
     path: '/manage/shop/coupons',
     name: 'Coupons',
-    component: PlaceholderPage,
-    props: { title: '優惠券管理' },
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/manage/shop/customer-service',
-    name: 'CustomerService',
-    component: PlaceholderPage,
-    props: { title: '客服管理' },
+    component: CouponManagement,
     meta: { requiresAuth: true }
   },
   {
@@ -72,6 +73,20 @@ const routes = [
     name: 'Reports',
     component: PlaceholderPage,
     props: { title: '報表分析' },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/vendor/certification',
+    name: 'ManageCertification',
+    component: ManageCertification,
+    props: { title: '認證申請' },
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/vendor',
+    name: 'ManageVendor',
+    component: ManageVendor,
+    props: { title: '店家管理' },
     meta: { requiresAuth: true }
   }
 ]
