@@ -334,11 +334,18 @@ const batchUpdateProducts = async () => {
     })
         .then(response => {
             // console.log(response.data);
-            batchUpdateMsg.value = "批量更新成功";
+            // batchUpdateMsg.value = "批量更新成功";
             selectedProducts.value = [];
             selectAll.value = false;
 
             onChangePage(currentPage.value);
+
+            Swal.fire({
+                icon: 'success',
+                title: '批量更新成功',
+                showConfirmButton: false,
+                timer: 1500,
+            })
 
         })
         .catch(error => {
