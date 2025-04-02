@@ -98,6 +98,23 @@ onMounted(async () => {
     fetchChatUsers();
 })
 
+const scrollToBottom = () => {
+    if (chatContainerRef.value) {
+        chatContainerRef.value.scrollTop = chatContainerRef.value.scrollHeight;
+    }
+};
+
+watch(messages, async () => {
+    await nextTick();
+    scrollToBottom();
+}, { deep: true });
+
+watch(chatContainerRef, (newRef) => {
+    if (newRef) {
+        scrollToBottom();
+    }
+}, { immediate: true });
+
 const isHideChat = computed(() => !isOpen.value);
 const isShowChat = computed(() => isOpen.value);
 const isSelectUser = computed(() => selectedUser.value);
@@ -190,7 +207,7 @@ function fetchChatUsers() {
 }
 
 // 獲取歷史聊天訊息
-function fetchChatMessages(userId) {
+async function fetchChatMessages(userId) {
     axios({
         method: 'get',
         url: `${PATH}/chatRoom/api/getChatMessagesHistory`,
@@ -302,6 +319,8 @@ const clearAllImages = () => {
     display: flex;
     flex: 1;
     overflow: hidden;
+    height: calc(100% - 50px);
+    /* 減去標題欄的高度 */
 }
 
 .chat-list {
@@ -327,20 +346,24 @@ const clearAllImages = () => {
     flex-direction: column;
     justify-content: flex-end;
     padding: 10px;
-    overflow-y: auto;
 }
 
 .chat-messages {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    /* justify-content: flex-end; */
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.chat-messages {
+    /*  \n 會自動轉換成換行 */
+    white-space: pre-line;
 }
 
 .chat-message {
-    /* 讓框大小隨內容變化 */
     display: inline-block;
-    /* 防止過長單字溢出 */
     word-wrap: break-word;
     word-break: break-word;
     max-width: 70%;
@@ -349,11 +372,6 @@ const clearAllImages = () => {
     border-radius: 10px;
     background: #f1f1f1;
     word-wrap: break-word;
-}
-
-.chat-messages {
-    white-space: pre-line;
-    /*  \n 會自動轉換成換行 */
 }
 
 .sent {
