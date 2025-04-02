@@ -158,9 +158,16 @@
             <button
               class="btn btn-primary"
               style="margin-right: 10px"
-              @click="demo()"
+              @click="demo1()"
             >
-              DEMO
+              Demo1
+            </button>
+            <button
+              class="btn btn-primary"
+              style="margin-right: 10px"
+              @click="demo2()"
+            >
+              Demo2
             </button>
             <button
               class="btn btn-danger"
@@ -168,6 +175,14 @@
               @click="close()"
             >
               關閉
+            </button>
+            <button
+              v-if="isModify"
+              class="btn btn-warning"
+              style="margin-right: 10px"
+              @click="resetfriendlyShop()"
+            >
+              重置
             </button>
             <button
               v-if="isAdd"
@@ -281,6 +296,19 @@ const addFriendlyShop = async () => {
     return;
   }
 
+  const ask = await Swal.fire({
+    title: "確定新增？",
+    icon: "warning",
+    allowOutsideClick: false,
+    showCancelButton: true,
+    confirmButtonText: "確認",
+    cancelButtonText: "返回",
+    reverseButtons: true,
+  });
+  if (!ask.isConfirmed) {
+    return;
+  }
+
   try {
     const response = await fetch(
       `http://localhost:8080/api/vendor/friendly_shop/add`,
@@ -356,6 +384,19 @@ const modifyFriendlyShop = async () => {
       icon: "warning",
       confirmButtonText: "關閉",
     });
+    return;
+  }
+
+  const ask = await Swal.fire({
+    title: "確定修改？",
+    icon: "warning",
+    allowOutsideClick: false,
+    showCancelButton: true,
+    confirmButtonText: "確認",
+    cancelButtonText: "返回",
+    reverseButtons: true,
+  });
+  if (!ask.isConfirmed) {
     return;
   }
 
@@ -438,10 +479,31 @@ const deletefriendlyShop = async (id) => {
 };
 
 /* 6. DEMO */
-const demo = () => {
+const resetfriendlyShop = async () => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/api/vendor/friendly_shop/${modifyId.value}`
+    );
+    const data = await response.json();
+    formVendorId.value = data.vendor?.id;
+    formName.value = data.name;
+    formCategoryId.value = data.vendorCategory?.id;
+    formAddress.value = data.address;
+  } catch (error) {
+    console.error("獲取友善店家失敗:", error);
+  }
+};
+
+/* 7. Demo */
+const demo1 = () => {
   formName.value = "朵兒寵物生活館";
   formCategoryId.value = 1;
   formAddress.value = "花蓮縣花蓮市進豐街91號";
+};
+const demo2 = () => {
+  formName.value = "資展國際-高雄訓練中心";
+  formCategoryId.value = 11;
+  formAddress.value = "高雄市前金區中正四路211號8號樓之1";
 };
 </script>
 
