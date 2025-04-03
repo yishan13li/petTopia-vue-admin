@@ -131,3 +131,34 @@ export const getCategorySales = async () => {
     throw new Error('Could not fetch category sales data.');
   }
 };
+
+//財務報表分析
+export const downloadOrderReport = async (orderStartDate, orderEndDate) => {
+  try {
+    // 格式化日期範圍，這裡假設日期格式是 YYYY-MM-DD，將其轉換為 YYYYMMDD 格式
+    const formattedStartDate = orderStartDate.replace(/-/g, '');
+    const formattedEndDate = orderEndDate.replace(/-/g, '');
+
+    // 設定檔名
+    const fileName = `orders_and_items_report_${formattedStartDate}_to_${formattedEndDate}.xlsx`;
+
+    // 發送 GET 請求
+    const response = await axios.get(`${URL}/manage/shop/orders/generateReport`, {
+      params: { orderStartDate, orderEndDate },
+      responseType: 'blob', // 重要！確保返回的是二進位文件
+    });
+
+    // 建立下載連結
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName); // 設定檔名為帶日期範圍的名稱
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error('下載財務報表失敗:', error);
+    throw error;
+  }
+};
+
