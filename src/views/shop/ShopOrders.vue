@@ -27,17 +27,17 @@
                   </select>
                 </td>
                 <td>
-                  <select v-model="paymentStatus" @change="loadOrders" class="form-select" >
+                  <select v-model="paymentStatus" @change="loadOrders" class="form-select">
                     <option value="">全部</option>
                     <option v-for="status in paymentStatusList" :key="status" :value="status">{{ status }}</option>
                   </select>
                 </td>
                 <td>
                   <input v-model="startDate" type="date" class="form-control d-inline-block w-auto"
-                    @keyup.enter="loadOrders">
+                    @keyup.enter="loadOrders" :max="today">
                   <span class="to-text mx-2">到</span>
                   <input v-model="endDate" type="date" class="form-control d-inline-block w-auto"
-                    @keyup.enter="loadOrders">
+                    @keyup.enter="loadOrders" :max="today">
                 </td>
                 <td>
                   <div class="d-flex">
@@ -109,6 +109,20 @@
           </select>
           <button @click="batchUpdateOrders" class="btn btn-warning"
             style="margin-left: 10px; margin-right: 10px;">批量更新</button>
+        </div>
+      </div>
+
+      <div class="order-management">
+        <div class="report-container d-flex align-items-center">
+          <div>
+            <label>開始日期：</label>
+            <input type="date" v-model="orderStartDate" :max="today" class="form-input" />
+          </div>
+          <div class="mx-3">
+            <label>結束日期：</label>
+            <input type="date" v-model="orderEndDate" :max="today" class="form-input" />
+          </div>
+          <button @click="downloadReport" class="btn btn-primary">下載報表</button>
         </div>
       </div>
 
@@ -284,6 +298,7 @@ import { updateOrder } from '@/api/shop/orderApi';
 import { UpdateBatchOrders } from '@/api/shop/orderApi';
 import OrderDetailModal from '@/components/shop/OrderDetailModal.vue';
 import { deleteOneOrder } from '@/api/shop/orderApi';
+import { downloadOrderReport } from '@/api/shop/orderApi';
 
 //===========取得訂單options=================
 const orderStatusList = ref([]);
@@ -698,6 +713,44 @@ const deleteOrder = async (orderId) => {
   }
 };
 
+//==========產生報表=========
+const orderStartDate = ref('');
+const orderEndDate = ref('');
+
+const downloadReport = async () => {
+  if (!orderStartDate.value || !orderEndDate.value) {
+    Swal.fire({
+      icon: 'error',
+      title: '錯誤',
+      text: '請選擇日期範圍',
+      timer: 2000,  // 2秒後自動關閉
+      showConfirmButton: false,  // 不顯示確認按鈕
+    });
+    return;
+  }
+
+  try {
+    await downloadOrderReport(orderStartDate.value, orderEndDate.value);
+    Swal.fire({
+      icon: 'success',
+      title: '成功',
+      text: '報表下載成功！',
+      timer: 2000,  // 2秒後自動關閉
+      showConfirmButton: false,  // 不顯示確認按鈕
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: '錯誤',
+      text: '下載失敗，請稍後再試',
+      timer: 2000,  // 2秒後自動關閉
+      showConfirmButton: false,  // 不顯示確認按鈕
+    });
+  }
+};
+
+const today = new Date().toISOString().split('T')[0];  // 獲取今天的日期，格式為 yyyy-mm-dd
+
 </script>
 
 <style>
@@ -780,5 +833,28 @@ option {
   text-align: center;
   font-size: larger;
   padding: 100px;
+}
+
+.order-management {
+  position: relative;
+  /* 設置相對定位，這樣報表區塊可以相對於此 div 定位 */
+}
+
+.report-container {
+  position: absolute;
+  /* 絕對定位 */
+  bottom: 20px;
+  /* 距離底部20px */
+  right: 20px;
+  /* 距離右邊20px */
+  background-color: white;
+  /* 可加背景色區隔 */
+  padding: 10px;
+  /* 加點內邊距 */
+
+}
+
+.report-container input.form-input {
+  height: 35px;
 }
 </style>
