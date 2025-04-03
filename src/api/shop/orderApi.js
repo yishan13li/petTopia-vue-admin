@@ -98,3 +98,67 @@ export const deleteOneOrder = async (orderId) => {
     return null;  
   }
 };
+
+//銷量最好的已完成訂單商品
+export const getTop5BestSellingProducts = async () => {
+  try {
+    const response = await axios.get(`${URL}/manage/shop/orders/top5BestSellingProducts`);
+    return response.data; // 返回 API 回傳的數據
+  } catch (error) {
+    console.error('Error fetching top 5 best selling products:', error);
+    throw error; // 重新拋出錯誤，讓呼叫方處理
+  }
+};
+
+//每日、每月、每年銷售額
+export async function getSalesData() {
+  try {
+      const response = await axios.get(`${URL}/manage/shop/orders/sales`);
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching sales data:', error);
+      throw error;
+  }
+}
+
+//商品種類銷量
+export const getCategorySales = async () => {
+  try {
+    const response = await axios.get(`${URL}/manage/shop/orders/category-sales`);
+    return response.data.data;  
+  } catch (error) {
+    console.error('Error fetching category sales data:', error);
+    throw new Error('Could not fetch category sales data.');
+  }
+};
+
+//財務報表分析
+export const downloadOrderReport = async (orderStartDate, orderEndDate) => {
+  try {
+    // 格式化日期範圍，這裡假設日期格式是 YYYY-MM-DD，將其轉換為 YYYYMMDD 格式
+    const formattedStartDate = orderStartDate.replace(/-/g, '');
+    const formattedEndDate = orderEndDate.replace(/-/g, '');
+
+    // 設定檔名
+    const fileName = `orders_and_items_report_${formattedStartDate}_to_${formattedEndDate}.xlsx`;
+
+    // 發送 GET 請求
+    const response = await axios.get(`${URL}/manage/shop/orders/generateReport`, {
+      params: { orderStartDate, orderEndDate },
+      responseType: 'blob', // 重要！確保返回的是二進位文件
+    });
+
+    // 建立下載連結
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName); // 設定檔名為帶日期範圍的名稱
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error('下載財務報表失敗:', error);
+    throw error;
+  }
+};
+

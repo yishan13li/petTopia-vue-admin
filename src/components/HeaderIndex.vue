@@ -4,7 +4,6 @@
       <!--**********************************
             Nav header start
         ***********************************-->
-
       <div class="nav-header">
 
         <div class="nav-header">
@@ -115,50 +114,39 @@
       <!--**********************************
             Sidebar start
         ***********************************-->
+
       <div class="quixnav">
         <div class="quixnav-scroll">
           <ul class="metismenu" id="menu">
             <li class="nav-label first">Main Menu</li>
 
-            <li>
-              <router-link to="/manage/members" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+            <li><router-link to="/manage/members" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                   class="bi bi-people"></i><span class="nav-text">會員管理</span></router-link>
               <ul aria-expanded="false">
-                <li>
-                  <router-link to="/manage/members">會員列表</router-link>
-                </li>
+                <li><router-link to="/manage/members">會員列表</router-link></li>
               </ul>
             </li>
 
-            <li>
-              <router-link to="/manage/shop/orders" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+            <li><router-link to="/shop/dashboard" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                   class="bi bi-cart"></i><span class="nav-text">商城管理</span></router-link>
               <ul aria-expanded="false">
-                <li>
-                  <router-link to="/manage/shop/products">商品管理</router-link>
-                </li>
 
-                <li>
-                  <router-link to="/manage/shop/orders">訂單管理</router-link>
-                </li>
+                <li><router-link to="/manage/shop/products">商品管理</router-link></li>
 
-                <li>
-                  <router-link to="/manage/shop/productReviews">商品評論管理</router-link>
-                </li>
+                <li><router-link to="/manage/shop/orders">訂單管理</router-link></li>
 
-                <li>
-                  <router-link to="/manage/shop/coupons">優惠券管理</router-link>
-                </li>
-                <li><a href="table-datatable-basic.html">客服管理</a></li>
-                <li><a href="table-datatable-basic.html">報表分析</a></li>
+                <li><router-link to="/manage/shop/productReviews">商品評論管理</router-link></li>
+
+                <li><router-link to="/manage/shop/coupons">優惠券管理</router-link></li>
+
               </ul>
             </li>
 
             <li>
               <router-link to="/manage/vendor" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
-                  class="bi bi-cart"></i><span class="nav-text">商家管理</span></router-link>
+                  class="bi bi-cart"></i><span class="nav-text">店家管理</span></router-link>
               <ul aria-expanded="false">
-                <li><router-link to="/manage/vendor">商家列表</router-link></li>
+                <li><router-link to="/manage/vendor">店家列表</router-link></li>
                 <li>
                   <router-link to="/manage/vendor/certification">認證申請管理</router-link>
                 </li>
@@ -173,7 +161,9 @@
         </div>
       </div>
     </div>
+
   </header>
+
 </template>
 <script setup>
 import { ref, onMounted } from "vue";

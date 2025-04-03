@@ -74,7 +74,7 @@
 
                 <div class="mb-4 ms-4">
                     <label class="revise">批量更新狀態：</label>
-                    <select v-model="batchStatus" class="form-select d-inline-block w-auto">
+                    <select v-model="batchStatus" class="form-select d-inline-block w-auto" style="min-width: 120px;">
                         <option value="" disabled selected>請選擇狀態</option>
                         <option value=1>上架</option>
                         <option value=0>下架</option>
@@ -334,11 +334,18 @@ const batchUpdateProducts = async () => {
     })
         .then(response => {
             // console.log(response.data);
-            batchUpdateMsg.value = "批量更新成功";
+            // batchUpdateMsg.value = "批量更新成功";
             selectedProducts.value = [];
             selectAll.value = false;
 
             onChangePage(currentPage.value);
+
+            Swal.fire({
+                icon: 'success',
+                title: '批量更新成功',
+                showConfirmButton: false,
+                timer: 1500,
+            })
 
         })
         .catch(error => {

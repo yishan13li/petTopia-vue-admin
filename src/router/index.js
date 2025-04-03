@@ -1,10 +1,11 @@
-import { createRouter, createWebHistory } from "vue-router";
-import { useAdminStore } from "../stores/adminStore";
-import Login from "@/views/Login.vue";
-import Dashboard from "@/views/Dashboard.vue";
-import ShopProducts from "@/views/shop/ShopProducts.vue";
-import ShopOrders from "@/views/shop/ShopOrders.vue";
-import ShopProductReviews from "@/views/shop/ShopProductReviews.vue";
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAdminStore } from '../stores/adminStore'
+import Login from '@/views/Login.vue'
+import Dashboard from '@/views/Dashboard.vue'
+import ShopDashboard from '@/views/shop/ShopDashboard.vue'
+import ShopProducts from '@/views/shop/ShopProducts.vue'
+import ShopOrders from '@/views/shop/ShopOrders.vue';
+import ShopProductReviews from '@/views/shop/ShopProductReviews.vue';
 
 import MemberManagement from "@/views/member/MemberManagement.vue";
 import CouponManagement from "@/views/shop/CouponManagement.vue";
@@ -36,8 +37,14 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/manage/shop/products",
-    name: "ShopProducts",
+    path: '/shop/dashboard',
+    name: 'ShopDashboard',
+    component: ShopDashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/manage/shop/products',
+    name: 'ShopProducts',
     component: ShopProducts,
     props: { title: "商品管理" },
     meta: { requiresAuth: true },
@@ -53,8 +60,8 @@ const routes = [
     path: "/manage/shop/productReviews",
     name: "ShopProductReviews",
     component: ShopProductReviews,
-    props: { title: "庫存管理" },
-    meta: { requiresAuth: true },
+    props: { title: '商品評論管理' },
+    meta: { requiresAuth: true }
   },
   {
     path: "/manage/shop/coupons",
@@ -63,15 +70,8 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/manage/shop/customer-service",
-    name: "CustomerService",
-    component: PlaceholderPage,
-    props: { title: "客服管理" },
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/manage/shop/reports",
-    name: "Reports",
+    path: '/manage/shop/reports',
+    name: 'Reports',
     component: PlaceholderPage,
     props: { title: "報表分析" },
     meta: { requiresAuth: true },

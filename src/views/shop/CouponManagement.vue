@@ -67,25 +67,30 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">優惠值 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="newCoupon.discountValue" required>
+                                        <input type="number" class="form-control" v-model="newCoupon.discountValue"
+                                            required>
                                         <small class="form-text text-muted">
                                             {{ newCoupon.discountType ? '請輸入折扣百分比（1-100）' : '請輸入優惠金額' }}
                                         </small>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">最低訂單金額 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="newCoupon.minOrderValue" required>
+                                        <input type="number" class="form-control" v-model="newCoupon.minOrderValue"
+                                            required>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">使用次數限制 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="newCoupon.limitCount" required>
+                                        <input type="number" class="form-control" v-model="newCoupon.limitCount"
+                                            required>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">使用期限 <span class="text-danger">*</span></label>
                                         <div class="d-flex">
-                                            <input type="datetime-local" class="form-control" v-model="newCoupon.validStart" required>
+                                            <input type="datetime-local" class="form-control"
+                                                v-model="newCoupon.validStart" required>
                                             <span class="mx-2">至</span>
-                                            <input type="datetime-local" class="form-control" v-model="newCoupon.validEnd" required>
+                                            <input type="datetime-local" class="form-control"
+                                                v-model="newCoupon.validEnd" required>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -95,7 +100,8 @@
                                     <div class="mb-3">
                                         <label class="form-label">使用限制</label>
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" v-model="newCoupon.oneTimeUse">
+                                            <input type="checkbox" class="form-check-input"
+                                                v-model="newCoupon.oneTimeUse">
                                             <label class="form-check-label">每人限用一次</label>
                                         </div>
                                     </div>
@@ -131,35 +137,42 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">優惠值 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="editingCoupon.discountValue" required>
+                                        <input type="number" class="form-control" v-model="editingCoupon.discountValue"
+                                            required>
                                         <small class="form-text text-muted">
                                             {{ editingCoupon.discountType ? '請輸入折扣百分比（1-100）' : '請輸入優惠金額' }}
                                         </small>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">最低訂單金額 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="editingCoupon.minOrderValue" required>
+                                        <input type="number" class="form-control" v-model="editingCoupon.minOrderValue"
+                                            required>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">使用次數限制 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="editingCoupon.limitCount" required>
+                                        <input type="number" class="form-control" v-model="editingCoupon.limitCount"
+                                            required>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">使用期限 <span class="text-danger">*</span></label>
                                         <div class="d-flex">
-                                            <input type="datetime-local" class="form-control" v-model="editingCoupon.validStart" required>
+                                            <input type="datetime-local" class="form-control"
+                                                v-model="editingCoupon.validStart" required>
                                             <span class="mx-2">至</span>
-                                            <input type="datetime-local" class="form-control" v-model="editingCoupon.validEnd" required>
+                                            <input type="datetime-local" class="form-control"
+                                                v-model="editingCoupon.validEnd" required>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">發放數量 <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" v-model="editingCoupon.quantity" required>
+                                        <input type="number" class="form-control" v-model="editingCoupon.quantity"
+                                            required>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">使用限制</label>
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" v-model="editingCoupon.oneTimeUse">
+                                            <input type="checkbox" class="form-check-input"
+                                                v-model="editingCoupon.oneTimeUse">
                                             <label class="form-check-label">每人限用一次</label>
                                         </div>
                                     </div>
@@ -184,7 +197,8 @@
                     <tr>
                         <th @click="sortBy('id')">
                             優惠券編號
-                            <i :class="sortDirection === 'id' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
+                            <i
+                                :class="sortDirection === 'id' ? (isAscending ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill') : ''"></i>
                         </th>
                         <th>優惠券名稱</th>
                         <th>優惠內容</th>
@@ -198,7 +212,7 @@
                         <td>{{ coupon.id }}</td>
                         <td>{{ coupon.name }}</td>
                         <td>
-                            {{ coupon.discountType ? `${coupon.discountValue}%` : `$${coupon.discountValue}` }}
+                            {{ coupon.discountType ? `${coupon.discountValue * 100}%` : `$${coupon.discountValue}` }}
                             <small v-if="coupon.minOrderValue" class="text-muted">
                                 (最低消費 ${{ coupon.minOrderValue }})
                             </small>
@@ -217,7 +231,7 @@
                             <button class="btn btn-sm btn-info" @click="editCoupon(coupon.id)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="handleDeleteCoupon(coupon.id)">
+                            <button class="btn btn-sm btn-danger ml-2" @click="handleDeleteCoupon(coupon.id)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -230,7 +244,8 @@
                 <ul class="pagination">
                     <li class="page-item"><button @click="goToPage(1)" class="page-link">«</button></li>
                     <li class="page-item"><button @click="prevPage" class="page-link">‹</button></li>
-                    <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span></li>
+                    <li class="page-item"><span class="page-link">第 {{ currentPage }} 頁 / 共 {{ totalPages }} 頁</span>
+                    </li>
                     <li class="page-item"><button @click="nextPage" class="page-link">›</button></li>
                     <li class="page-item"><button @click="goToPage(totalPages)" class="page-link">»</button></li>
                 </ul>
@@ -288,7 +303,7 @@ const loadCoupons = async () => {
             couponKeyword.value,
             couponStatus.value
         );
-        
+
         coupons.value = response.content;
         totalPages.value = response.totalPages;
     } catch (error) {
@@ -311,18 +326,18 @@ const submitCoupon = async () => {
             validStart: new Date(newCoupon.value.validStart).toISOString(),
             validEnd: new Date(newCoupon.value.validEnd).toISOString()
         };
-        
+
         await createCoupon(couponData);
-        
+
         // 先關閉 Modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('addCouponModal'));
         if (modal) {
             modal.hide();
         }
-        
+
         // 顯示成功訊息
         alert('優惠券新增成功！');
-        
+
         // 重新載入整個頁面
         window.location.reload();
     } catch (error) {
@@ -346,7 +361,7 @@ const editCoupon = async (couponId) => {
             validEnd: new Date(coupon.validEnd).toISOString().slice(0, 16), // 轉換為 datetime-local 格式
             status: coupon.status
         };
-        
+
         // 顯示編輯 Modal
         const modal = new bootstrap.Modal(document.getElementById('editCouponModal'));
         modal.show();
@@ -364,7 +379,7 @@ const handleUpdateCoupon = async () => {
             validStart: new Date(editingCoupon.value.validStart).toISOString(),
             validEnd: new Date(editingCoupon.value.validEnd).toISOString()
         };
-        
+
         await updateCoupon(editingCoupon.value.id, couponData);
         $('#editCouponModal').modal('hide');
         loadCoupons();
@@ -378,7 +393,7 @@ const handleDeleteCoupon = async (couponId) => {
     if (!confirm('確定要刪除該優惠券嗎？此操作無法復原。')) {
         return;
     }
-    
+
     try {
         await deleteCoupon(couponId);
         loadCoupons();
@@ -410,7 +425,7 @@ const getStatusText = (status) => {
         case 'expired':
             return '已過期';
         default:
-            return '未知';
+            return '啟用中';
     }
 };
 
@@ -490,4 +505,4 @@ onMounted(() => {
 .btn-link:hover {
     text-decoration: underline;
 }
-</style> 
+</style>
