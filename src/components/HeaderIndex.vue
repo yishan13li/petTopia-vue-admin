@@ -4,43 +4,30 @@
       <!--**********************************
             Nav header start
         ***********************************-->
+
       <div class="nav-header">
+
         <div class="nav-header">
-          <a href="index.html" class="brand-logo">
-            <img class="logo-abbr" src="/admin_static/images/logo.png" alt="" />
-            <img
-              class="logo-compact"
-              src="/admin_static/images/logo-text.png"
-              alt=""
-            />
-            <img
-              class="brand-title"
-              src="/admin_static/images/logo-text.png"
-              alt=""
-            />
+          <a href="http://localhost:5174/" class="brand-logo">
+            <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+            <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+            <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
           </a>
         </div>
 
         <div class="nav-control">
           <div class="hamburger">
-            <span class="line"></span><span class="line"></span
-            ><span class="line"></span>
+            <span class="line"></span><span class="line"></span><span class="line"></span>
           </div>
         </div>
 
+
         <router-link to="/dashboard" class="brand-logo">
-          <img class="logo-abbr" src="/admin_static/images/logo.png" alt="" />
-          <img
-            class="logo-compact"
-            src="/admin_static/images/logo-text.png"
-            alt=""
-          />
-          <img
-            class="brand-title"
-            src="/admin_static/images/logo-text.png"
-            alt=""
-          />
+          <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+          <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+          <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
         </router-link>
+
       </div>
 
       <!--**********************************
@@ -52,20 +39,12 @@
             <div class="collapse navbar-collapse justify-content-between">
               <div class="header-left">
                 <div class="search_bar dropdown">
-                  <span
-                    class="search_icon p-3 c-pointer"
-                    data-toggle="dropdown"
-                  >
+                  <span class="search_icon p-3 c-pointer" data-toggle="dropdown">
                     <i class="mdi mdi-magnify"></i>
                   </span>
                   <div class="dropdown-menu p-0 m-0">
                     <form>
-                      <input
-                        class="form-control"
-                        type="search"
-                        placeholder="Search"
-                        aria-label="Search"
-                      />
+                      <input class="form-control" type="search" placeholder="Search" aria-label="Search" />
                     </form>
                   </div>
                 </div>
@@ -73,12 +52,7 @@
 
               <ul class="navbar-nav header-right">
                 <li class="nav-item dropdown notification_dropdown">
-                  <a
-                    class="nav-link"
-                    href="#"
-                    role="button"
-                    data-toggle="dropdown"
-                  >
+                  <a class="nav-link" href="#" role="button" data-toggle="dropdown">
                     <i class="mdi mdi-bell"></i>
                     <div class="pulse-css"></div>
                   </a>
@@ -98,9 +72,7 @@
                         <span class="notify-time">3:20 am</span>
                       </li>
                       <li class="media dropdown-item">
-                        <span class="primary"
-                          ><i class="ti-shopping-cart"></i
-                        ></span>
+                        <span class="primary"><i class="ti-shopping-cart"></i></span>
                         <div class="media-body">
                           <a href="#">
                             <p>
@@ -112,18 +84,11 @@
                         <span class="notify-time">3:20 am</span>
                       </li>
                     </ul>
-                    <a class="all-notification" href="#"
-                      >See all notifications <i class="ti-arrow-right"></i
-                    ></a>
+                    <a class="all-notification" href="#">See all notifications <i class="ti-arrow-right"></i></a>
                   </div>
                 </li>
                 <li class="nav-item dropdown header-profile">
-                  <a
-                    class="nav-link"
-                    href="#"
-                    role="button"
-                    data-toggle="dropdown"
-                  >
+                  <a class="nav-link" href="#" role="button" data-toggle="dropdown">
                     <i class="mdi mdi-account"></i>
                   </a>
                   <div class="dropdown-menu dropdown-menu-right">
@@ -156,14 +121,8 @@
             <li class="nav-label first">Main Menu</li>
 
             <li>
-              <router-link
-                to="/manage/members"
-                class="has-arrow"
-                href="javascript:void()"
-                aria-expanded="false"
-                ><i class="bi bi-people"></i
-                ><span class="nav-text">會員管理</span></router-link
-              >
+              <router-link to="/manage/members" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+                  class="bi bi-people"></i><span class="nav-text">會員管理</span></router-link>
               <ul aria-expanded="false">
                 <li>
                   <router-link to="/manage/members">會員列表</router-link>
@@ -172,14 +131,8 @@
             </li>
 
             <li>
-              <router-link
-                to="/manage/shop/orders"
-                class="has-arrow"
-                href="javascript:void()"
-                aria-expanded="false"
-                ><i class="bi bi-cart"></i
-                ><span class="nav-text">商城管理</span></router-link
-              >
+              <router-link to="/manage/shop/orders" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+                  class="bi bi-cart"></i><span class="nav-text">商城管理</span></router-link>
               <ul aria-expanded="false">
                 <li>
                   <router-link to="/manage/shop/products">商品管理</router-link>
@@ -190,15 +143,11 @@
                 </li>
 
                 <li>
-                  <router-link to="/manage/shop/productReviews"
-                    >商品評論管理</router-link
-                  >
+                  <router-link to="/manage/shop/productReviews">商品評論管理</router-link>
                 </li>
 
                 <li>
-                  <router-link to="/manage/shop/coupons"
-                    >優惠券管理</router-link
-                  >
+                  <router-link to="/manage/shop/coupons">優惠券管理</router-link>
                 </li>
                 <li><a href="table-datatable-basic.html">客服管理</a></li>
                 <li><a href="table-datatable-basic.html">報表分析</a></li>
@@ -206,25 +155,15 @@
             </li>
 
             <li>
-              <router-link
-                to="/manage/vendor"
-                class="has-arrow"
-                href="javascript:void()"
-                aria-expanded="false"
-                ><i class="bi bi-cart"></i
-                ><span class="nav-text">商家管理</span></router-link
-              >
+              <router-link to="/manage/vendor" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+                  class="bi bi-cart"></i><span class="nav-text">商家管理</span></router-link>
               <ul aria-expanded="false">
                 <li><router-link to="/manage/vendor">商家列表</router-link></li>
                 <li>
-                  <router-link to="/manage/vendor/certification"
-                    >認證申請管理</router-link
-                  >
+                  <router-link to="/manage/vendor/certification">認證申請管理</router-link>
                 </li>
                 <li>
-                  <router-link to="/manage/vendor/friendly_shop"
-                    >友善店家管理</router-link
-                  >
+                  <router-link to="/manage/vendor/friendly_shop">友善店家管理</router-link>
                 </li>
               </ul>
             </li>
@@ -342,5 +281,11 @@ onMounted(async () => {
 .dropdown-item i {
   margin-right: 0.5rem;
   font-size: 1.1rem;
+}
+
+/* 新增 brand-logo 樣式 */
+.brand-logo {
+  transform: scale(1.5);
+  transform-origin: left center;
 }
 </style>

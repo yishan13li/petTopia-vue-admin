@@ -2,37 +2,7 @@
   <div class="content-body">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-xl-3 col-xxl-3 col-lg-6 col-sm-6">
-          <div class="widget-stat card bg-primary">
-            <div class="card-body">
-              <div class="media">
-                <span class="me-3">
-                  <i class="bi bi-cart-check"></i>
-                </span>
-                <div class="media-body text-white">
-                  <p class="mb-1">總訂單數</p>
-                  <h3 class="text-white">{{ totalOrders }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-xxl-3 col-lg-6 col-sm-6">
-          <div class="widget-stat card bg-success">
-            <div class="card-body">
-              <div class="media">
-                <span class="me-3">
-                  <i class="bi bi-currency-dollar"></i>
-                </span>
-                <div class="media-body text-white">
-                  <p class="mb-1">總收入</p>
-                  <h3 class="text-white">$ {{ totalRevenue }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-3 col-xxl-3 col-lg-6 col-sm-6">
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
           <div class="widget-stat card bg-info">
             <div class="card-body">
               <div class="media">
@@ -47,8 +17,38 @@
             </div>
           </div>
         </div>
-        <div class="col-xl-3 col-xxl-3 col-lg-6 col-sm-6">
-          <div class="widget-stat card bg-warning">
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
+          <div class="widget-stat card bg-success">
+            <div class="card-body">
+              <div class="media">
+                <span class="me-3">
+                  <i class="bi bi-shop"></i>
+                </span>
+                <div class="media-body text-white">
+                  <p class="mb-1">店家數</p>
+                  <h3 class="text-white">{{ totalVendors }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
+          <div class="widget-stat card bg-danger">
+            <div class="card-body">
+              <div class="media">
+                <span class="me-3">
+                  <i class="bi bi-calendar-event"></i>
+                </span>
+                <div class="media-body text-white">
+                  <p class="mb-1">活動數</p>
+                  <h3 class="text-white">{{ totalActivities }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
+          <div class="widget-stat card bg-dark">
             <div class="card-body">
               <div class="media">
                 <span class="me-3">
@@ -57,6 +57,36 @@
                 <div class="media-body text-white">
                   <p class="mb-1">商品數</p>
                   <h3 class="text-white">{{ totalProducts }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
+          <div class="widget-stat card bg-primary">
+            <div class="card-body">
+              <div class="media">
+                <span class="me-3">
+                  <i class="bi bi-cart-check"></i>
+                </span>
+                <div class="media-body text-white">
+                  <p class="mb-1">總訂單數</p>
+                  <h3 class="text-white">{{ totalOrders }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-xxl-4 col-lg-6 col-sm-6">
+          <div class="widget-stat card bg-warning">
+            <div class="card-body">
+              <div class="media">
+                <span class="me-3">
+                  <i class="bi bi-currency-dollar"></i>
+                </span>
+                <div class="media-body text-white">
+                  <p class="mb-1">總收入</p>
+                  <h3 class="text-white">$ {{ totalRevenue.toLocaleString() }}</h3>
                 </div>
               </div>
             </div>
@@ -114,11 +144,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Chart from 'chart.js/auto';
+import axios from 'axios';
 
 const totalOrders = ref(0);
-const totalRevenue = ref(0);
 const totalMembers = ref(0);
+const totalVendors = ref(0);
+const totalActivities = ref(0);
 const totalProducts = ref(0);
+const totalRevenue = ref(0);
 const recentOrders = ref([]);
 
 const getStatusClass = (status) => {
@@ -132,14 +165,27 @@ const getStatusClass = (status) => {
   return classes[status] || 'badge bg-secondary';
 };
 
+const fetchDashboardStats = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/admin/dashboard/stats');
+    const stats = response.data;
+    
+    totalOrders.value = stats.totalOrders;
+    totalMembers.value = stats.totalMembers;
+    totalVendors.value = stats.totalVendors;
+    totalActivities.value = stats.totalActivities;
+    totalProducts.value = stats.totalProducts;
+    totalRevenue.value = stats.totalRevenue;
+  } catch (error) {
+    console.error('獲取統計數據失敗：', error);
+    // 這裡可以加入錯誤提示
+  }
+};
+
 onMounted(async () => {
-  // TODO: 從 API 獲取數據
-  // 這裡先使用模擬數據
-  totalOrders.value = 150;
-  totalRevenue.value = 25000;
-  totalMembers.value = 80;
-  totalProducts.value = 45;
+  await fetchDashboardStats();
   
+  // 模擬最近訂單數據
   recentOrders.value = [
     { orderId: 'ORD001', memberName: '張三', totalAmount: 1200, status: '待付款' },
     { orderId: 'ORD002', memberName: '李四', totalAmount: 2500, status: '已付款' },
