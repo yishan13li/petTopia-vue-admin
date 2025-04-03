@@ -391,10 +391,11 @@ const chartData = computed(() => {
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'left',  // 設定圖例顯示在圓餅圖的左邊
-      align: 'start',    // 垂直排列圖例
+      align: 'center',    // 垂直排列圖例
       labels: {
         usePointStyle: true,  // 使用點樣式來顯示圖例，這樣會顯示圓形的圖示
         font: {
@@ -441,12 +442,10 @@ const chartOptions = {
 }
 
 .pie-chart-container {
-  max-width: 365px;
-  max-height: 365px;
+  max-width: 450px;
+  max-height: 450px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-left: 7vw;
-  margin-top: 3.125em;
 }
 </style>

@@ -4,28 +4,20 @@
       <!--**********************************
             Nav header start
         ***********************************-->
-      <div class="nav-header">
 
-        <div class="nav-header">
-          <a href="http://localhost:5174/" class="brand-logo">
-            <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
-            <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
-            <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-          </a>
-        </div>
+      <div class="nav-header">
+        <router-link to="/dashboard" class="brand-logo">
+          <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
+          <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
+          <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
+        </router-link>
+
 
         <div class="nav-control">
           <div class="hamburger">
             <span class="line"></span><span class="line"></span><span class="line"></span>
           </div>
         </div>
-
-
-        <router-link to="/dashboard" class="brand-logo">
-          <img class="logo-abbr" src="/admin_static/images/logo.png" alt="">
-          <img class="logo-compact" src="/admin_static/images/logo-text.png" alt="">
-          <img class="brand-title" src="/admin_static/images/logo-text.png" alt="">
-        </router-link>
 
       </div>
 
@@ -144,7 +136,7 @@
 
             <li>
               <router-link to="/manage/vendor" class="has-arrow" href="javascript:void()" aria-expanded="false"><i
-                  class="bi bi-cart"></i><span class="nav-text">店家管理</span></router-link>
+                  class="bi bi-shop"></i><span class="nav-text">店家管理</span></router-link>
               <ul aria-expanded="false">
                 <li><router-link to="/manage/vendor">店家列表</router-link></li>
                 <li>
@@ -275,7 +267,15 @@ onMounted(async () => {
 
 /* 新增 brand-logo 樣式 */
 .brand-logo {
-  transform: scale(1.5);
+  transform: scale(1.5) translateX(-10px);
   transform-origin: left center;
+}
+
+/* 當視窗寬度小於 768px 時，縮放比例變為 1.7 */
+@media (max-width: 800px) {
+  .brand-logo {
+    transform: scale(1.5);
+    transform-origin: center;
+  }
 }
 </style>

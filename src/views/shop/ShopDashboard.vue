@@ -56,7 +56,7 @@
                 </span>
                 <div class="media-body text-white ">
                   <p class="mb-1">低庫存商品數</p>
-                  <h3 class="text-white">{{ totalProducts }}</h3>
+                  <h3 class="text-white">{{ lowStockProducts }}</h3>
                 </div>
               </div>
             </div>
@@ -86,7 +86,7 @@
 
             <div class="card-body">
               <!-- 銷售最好前 5 名商品 -->
-              <h4 class="mt-4">🔥 最熱銷 Top5</h4>
+              <h4>🔥 最熱銷 Top5</h4>
               <div class="list-group">
                 <div v-for="(product, index) in top5SalesProducts" :key="product.productDetail.id"
                   class="list-group-item d-flex align-items-center">
@@ -443,10 +443,11 @@ const chartData = computed(() => {
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'left',  // 設定圖例顯示在圓餅圖的左邊
-      align: 'start',    // 垂直排列圖例
+      align: 'center',    // 垂直排列圖例
       labels: {
         usePointStyle: true,  // 使用點樣式來顯示圖例，這樣會顯示圓形的圖示
         font: {
@@ -478,32 +479,30 @@ const chartOptions = {
   },
 };
 
-
-
-
 //===========================
 
+const URL = import.meta.env.VITE_API_URL;
+
 const totalOrders = ref(0);
-const totalProducts = ref(0);
+const lowStockProducts = ref(0);
 const totalReviews = ref(0);
 
-const fetchDashboardStats = async () => {
+const fetchDashboardSummary = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/admin/dashboard/stats');
-    const stats = response.data;
+    const response = await axios.get(`${URL}/manage/shop/dashboard/summary`);
 
-    totalOrders.value = stats.totalOrders;
-    totalProducts.value = stats.totalProducts;
-  } catch (error) {
-    console.error('獲取統計數據失敗：', error);
-    // 這裡可以加入錯誤提示
+    // 更新狀態
+    totalOrders.value = response.data.totalOrders;
+    totalReviews.value = response.data.totalReviews;
+    lowStockProducts.value = response.data.lowStockProducts;
+  } catch (err) {
+    console.error('API 請求錯誤', err);
   }
 };
 
-
-onMounted(async () => {
-  fetchDashboardStats();
-  totalReviews.value = 20;
+// 頁面掛載時呼叫 API
+onMounted(() => {
+  fetchDashboardSummary();
 });
 
 </script>
@@ -527,7 +526,5 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-left: 3vw;
-  margin-top: 3.125em;
 }
 </style>
