@@ -2,7 +2,7 @@
     <div class="content-body">
         <div class="container-fluid">
             <div class="container mt-4">
-                <h2 class="mb-4">商家管理</h2>
+                <h2 class="mb-4">店家管理</h2>
 
                 <!-- 搜尋與篩選 -->
                 <div class="d-flex justify-content-between mb-3">

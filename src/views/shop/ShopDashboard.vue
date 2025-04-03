@@ -217,6 +217,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 import { Chart } from 'chart.js/auto';
 import { getTop3ProductDetailsByAverageRating, getTop5ProductsByAverageRating } from '@/api/shop/productReviewApi';
 import { getTop5BestSellingProducts, getSalesData, getCategorySales } from '@/api/shop/orderApi';
@@ -486,11 +487,23 @@ const totalOrders = ref(0);
 const totalProducts = ref(0);
 const totalReviews = ref(0);
 
-onMounted(async () => {
-  totalOrders.value = 150;
-  totalProducts.value = 45;
-  totalReviews.value = 30;
+const fetchDashboardStats = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/admin/dashboard/stats');
+    const stats = response.data;
 
+    totalOrders.value = stats.totalOrders;
+    totalProducts.value = stats.totalProducts;
+  } catch (error) {
+    console.error('獲取統計數據失敗：', error);
+    // 這裡可以加入錯誤提示
+  }
+};
+
+
+onMounted(async () => {
+  fetchDashboardStats();
+  totalReviews.value = 20;
 });
 
 </script>
