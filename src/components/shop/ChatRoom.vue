@@ -2,14 +2,14 @@
     <div>
         <!-- 聊天按鈕 -->
         <button v-if="isHideChat" class="chat-button btn btn-primary" @click="isOpen = true">
-            <i class="bi bi-chat-dots"></i>
+            <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
         </button>
 
         <!-- 聊天室 -->
         <div v-if="isShowChat" class="chat-container">
             <!-- 標題列 -->
             <div class="chat-header">
-                <span>聊天室</span>
+                <span class="ms-2">聊天室</span>
                 <button class="btn btn-light btn-sm" @click="isOpen = false">
                     <i class="bi bi-chevron-down"></i>
                 </button>
@@ -61,7 +61,7 @@
                         <textarea v-model="newMessage" @keydown.enter.prevent="handleEnter" placeholder="輸入訊息..."
                             class="form-control"></textarea>
                         <input type="file" @change="handleFileUpload" class="d-none" ref="fileInputRef" multiple />
-                        <button @click="triggerFileInput" class="btn btn-secondary me-2">圖片</button>
+                        <button @click="triggerFileInput" class="btn btn-secondary ms-2 me-3">圖片</button>
                         <button @click="sendMessage" class="btn btn-primary" :disabled="!isSelectUser">送出</button>
                     </div>
                 </div>
@@ -288,13 +288,22 @@ const clearAllImages = () => {
     bottom: 20px;
     right: 20px;
     z-index: 1000;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-button i {
+    font-size: 2rem;
 }
 
 .chat-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 50%;
+    width: 35%;
     height: 80%;
     background: white;
     border: 1px solid #ccc;
@@ -309,7 +318,7 @@ const clearAllImages = () => {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background: #007bff;
+    background: #6B51DF;
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -324,7 +333,7 @@ const clearAllImages = () => {
 }
 
 .chat-list {
-    width: 30%;
+    width: 20%;
     border-right: 1px solid #ddd;
     overflow-y: auto;
     padding: 10px;
@@ -376,7 +385,7 @@ const clearAllImages = () => {
 
 .sent {
     align-self: flex-end;
-    background: #007bff;
+    background: #6B51DF;
     color: white;
 }
 

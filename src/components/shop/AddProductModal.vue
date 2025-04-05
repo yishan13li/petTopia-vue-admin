@@ -1,7 +1,7 @@
 <template>
     <!-- 新增商品 Modal -->
-    <div ref="addProductModalRef" id="addProductModal" class="modal fade" tabindex="-1" aria-labelledby="addProductModalLabel"
-        aria-hidden="true">
+    <div ref="addProductModalRef" id="addProductModal" class="modal fade" tabindex="-1"
+        aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -84,6 +84,9 @@
                         </div>
 
                         <button type="submit" class="btn btn-success" @click="onClickSubmit">新增商品</button>
+                        <button class="btn btn-primary ms-3" @click="onDemoCreate(1)">Demo新增1</button>
+                        <button class="btn btn-primary ms-3" @click="onDemoCreate(2)">Demo新增2</button>
+                        <button class="btn btn-primary ms-3" @click="onDemoCreate(3)">Demo新增3</button>
                         <span class="text-danger ms-3">{{ messages }}</span>
 
                     </form>
@@ -128,14 +131,6 @@ const emit = defineEmits(["updateProductList"]);
 
 onMounted(async () => {
     addProductModal.value = new bootstrap.Modal(addProductModalRef.value);
-
-    // const modalElement = document.getElementById("addProductModal");
-
-    // if (modalElement) {
-    //     modalElement.addEventListener("hide.bs.modal", () => {
-    //         emit("updateProductList"); // 當 Modal 關閉時，通知父元件
-    //     });
-    // }
 });
 
 defineExpose({
@@ -182,16 +177,16 @@ function onClickSubmit() {
         .then(response => {
             // console.log(response.data);
             messages.value = response.data.messages;
-            if (messages.value == "新增商品成功"){
+            if (messages.value == "新增商品成功") {
                 Swal.fire({
-                icon: 'success',
-                title: '新增商品成功',
-                showConfirmButton: false,
-                timer: 1500, 
+                    icon: 'success',
+                    title: '新增商品成功',
+                    showConfirmButton: false,
+                    timer: 1500,
                 }).then(() => {
-                messages.value = "";
-                emit("updateProductList");
-            });
+                    messages.value = "";
+                    emit("updateProductList");
+                });
             }
 
         })
@@ -213,14 +208,99 @@ const handleImageUpload = (event) => {
         reader.readAsDataURL(file);
     }
 
+    // **關鍵：清空 input，確保能重新選擇相同檔案**
+    event.target.value = "";
 };
+
+// Demo新增商品
+function onDemoCreate(number) {
+
+    if (number === 1) {
+        product.value = {
+            unitPrice: 120,
+            discountPrice: 100,
+            stockQuantity: 30,
+            photo: "",
+            status: "1",
+            productSize: { name: "小" },
+            productColor: { name: "" },
+            productDetail: {
+                name: "寵物黑色陶瓷碗",
+                description: `必買特點 都市傳說~~ 用黑色的碗貓咪比較喜歡喝水~~
+1、釉面細膩，美觀易清洗：清潔便利，不易滋生細菌
+2、利用視差吸引貓咪喝水：貓咪視力較弱，黑碗容易反射水波的光線，進而吸引貓咪飲用
+3、陶瓷材質：耐高溫，方便清洗，不易卡油漬
+4、黃金高度：穩重底座與完美高度，貓咪吃飯不再蜷縮進食`,
+                productCategory: { name: "其他" },
+            }
+        }
+    }
+    if (number === 2) {
+        product.value = {
+            unitPrice: 150,
+            discountPrice: 0,
+            stockQuantity: 20,
+            photo: "",
+            status: "1",
+            productSize: { name: "中" },
+            productColor: { name: "" },
+            productDetail: {
+                name: "寵物黑色陶瓷碗",
+                description: `必買特點 都市傳說~~ 用黑色的碗貓咪比較喜歡喝水~~
+1、釉面細膩，美觀易清洗：清潔便利，不易滋生細菌
+2、利用視差吸引貓咪喝水：貓咪視力較弱，黑碗容易反射水波的光線，進而吸引貓咪飲用
+3、陶瓷材質：耐高溫，方便清洗，不易卡油漬
+4、黃金高度：穩重底座與完美高度，貓咪吃飯不再蜷縮進食`,
+                productCategory: { name: "其他" },
+            }
+        }
+    }
+    if (number === 3) {
+        product.value = {
+            unitPrice: 180,
+            discountPrice: 0,
+            stockQuantity: 10,
+            photo: "",
+            status: "1",
+            productSize: { name: "大" },
+            productColor: { name: "" },
+            productDetail: {
+                name: "寵物黑色陶瓷碗",
+                description: `必買特點 都市傳說~~ 用黑色的碗貓咪比較喜歡喝水~~
+1、釉面細膩，美觀易清洗：清潔便利，不易滋生細菌
+2、利用視差吸引貓咪喝水：貓咪視力較弱，黑碗容易反射水波的光線，進而吸引貓咪飲用
+3、陶瓷材質：耐高溫，方便清洗，不易卡油漬
+4、黃金高度：穩重底座與完美高度，貓咪吃飯不再蜷縮進食`,
+                productCategory: { name: "其他" },
+            }
+        }
+    }
+
+
+
+}
 
 function showModal() {
     addProductModal.value.show();
-    product.value.productDetail.productCategory.name = "食品保健";
-    product.value.status = "1";
+    // product.value.productDetail.productCategory.name = "食品保健";
+    // product.value.status = "1";
     selectedImage.value = null;
     messages.value = "";
+
+    product.value = {
+        unitPrice: 0,
+        discountPrice: 0,
+        stockQuantity: 0,
+        photo: "",
+        status: "1",
+        productSize: { name: "" },
+        productColor: { name: "" },
+        productDetail: {
+            name: "",
+            description: "",
+            productCategory: { name: "食品保健" },
+        }
+    };
 
 }
 

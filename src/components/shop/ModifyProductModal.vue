@@ -220,6 +220,8 @@ const handleImageUpload = (event) => {
         reader.readAsDataURL(file);
     }
 
+    // **關鍵：清空 input，確保能重新選擇相同檔案**
+    event.target.value = "";
 };
 
 
