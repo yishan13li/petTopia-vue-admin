@@ -20,6 +20,10 @@
                 <div class="chat-list">
                     <div v-for="user in users" :key="user.id" class="chat-user" @click="selectUser(user)">
                         {{ user.name }}
+                        <!-- 未讀提示 (目前重整後會消失，因為SQL沒有未讀訊息欄位) -->
+                        <!-- <span v-if="user.unreadCount > 0" class="badge bg-danger ms-2">
+                            {{ user.unreadCount }}
+                        </span> -->
                     </div>
                 </div>
 
@@ -137,6 +141,12 @@ stompClient.onConnect = () => {
         if (selectedUser.value && (msg.senderId === selectedUser.value.id || msg.senderId === saId)) {
             messages.value.push(msg);
         }
+        else {
+            // 新訊息來自不是目前選中的人 -> 加上未讀數
+            const sender = users.value.find(u => u.id === msg.senderId);
+            if (sender)
+                sender.unreadCount++;
+        }
 
     });
 };
@@ -201,7 +211,11 @@ function fetchChatUsers() {
     })
         .then(response => {
             // console.log('所有聊天用戶:', response.data.chatUsers);
-            users.value = response.data.chatUsers;
+            users.value = response.data.chatUsers.map(user => ({
+                ...user,
+                unreadCount: 0  // 未讀訊息計算
+            }));
+
         })
         .catch(error => console.log(error));
 }
@@ -242,6 +256,12 @@ const selectUser = (user) => {
     // console.log('選擇聊天對象:', user);
     selectedUser.value = user;
     fetchChatMessages(selectedUser.value.id);
+
+    // 把未讀訊息數清零
+    const u = users.value.find(u => u.id === user.id);
+    if (u)
+        u.unreadCount = 0;
+
 };
 
 const triggerFileInput = () => {

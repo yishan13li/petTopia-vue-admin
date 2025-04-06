@@ -78,6 +78,10 @@
                         <div class="mb-2">
                             <label class="form-label">上傳一張圖片</label>
                             <input type="file" class="form-control" @change="handleImageUpload" accept="image/*">
+                            <!-- 顯示檔名 -->
+                            <!-- <div v-if="fileName" class="mt-1 text-secondary">
+                                已選擇：{{ fileName }}
+                            </div> -->
 
                             <div v-if="selectedImage" class="mt-2">
                                 <p>選擇的圖片：</p>
@@ -91,6 +95,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-success" @click="onClickSubmit">修改商品</button>
+                        <button class="btn btn-primary ms-3" @click="onDemoModify()">Demo修改</button>
                         <span class="text-danger ms-3">{{ messages }}</span>
 
                     </form>
@@ -126,6 +131,9 @@ const emit = defineEmits(["updateProductList"]);
 
 // 修改商品 body
 const product = ref({});
+
+// 上傳圖片名稱
+const fileName = ref('');
 
 onMounted(async () => {
 
@@ -210,6 +218,8 @@ function onClickSubmit() {
 const handleImageUpload = (event) => {
     const file = event.target.files[0]; // 只取第一張圖片
     if (file) {
+        fileName.value = file.name;
+
         const reader = new FileReader();
         reader.onload = () => {
             selectedImage.value = {
@@ -224,6 +234,19 @@ const handleImageUpload = (event) => {
     event.target.value = "";
 };
 
+function onDemoModify() {
+
+    product.value.unitPrice = 200;
+    product.value.discountPrice = 100;
+    product.value.stockQuantity = 30;
+    product.value.status = "1";
+    product.value.productDetail.description = `【特色說明】：為貓咪研發的球形玩具，速度靈動，是貓咪的焦點王
+喚醒刻在基因裡的捕獵記憶 
+一組三入 盡享狩獵的樂趣 
+選了會吸引貓咪注意的配色 
+讓貓為之瘋狂的羽毛`;
+
+}
 
 </script>
 
