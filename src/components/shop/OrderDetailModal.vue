@@ -26,8 +26,16 @@
           <ul class="product-list">
             <li v-for="(item, index) in orderDetail.orderItems" :key="index" class="product-item">
               <div class="product-info">
-                #{{ item.productId }} {{ item.productName }} ({{ item.productColor }}, {{ item.productSize }})
+                #{{ item.productId }} {{ item.productName }}
+                <template v-if="item.productColor || item.productSize">
+                  (
+                  <template v-if="item.productColor">{{ item.productColor }}</template>
+                  <template v-if="item.productColor && item.productSize">, </template>
+                  <template v-if="item.productSize">{{ item.productSize }}</template>
+                  )
+                </template>
               </div>
+
               <div class="product-price">
                 <span v-if="item.discountPrice">
                   <del>$ {{ item.unitPrice }}</del> <strong>$ {{ item.discountPrice }}</strong>
@@ -68,7 +76,7 @@ const props = defineProps({
   orderDetail: {
     type: Object,
     required: false,
-    
+
   },
 
 });

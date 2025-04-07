@@ -351,4 +351,8 @@ option {
   object-fit: cover;
   /* 保持圖片比例不變並裁剪 */
 }
+
+.review-content p {
+  margin-bottom: 0;
+}
 </style>
