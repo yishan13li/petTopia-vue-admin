@@ -105,7 +105,10 @@
                                             <label class="form-check-label">每人限用一次</label>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-success">新增</button>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-success">新增</button>
+                                        <button type="button" class="btn btn-info" @click="fillDemoData">Demo</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -257,6 +260,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getCoupons, getCoupon, createCoupon, updateCoupon, deleteCoupon } from '@/api/coupon';
+import Swal from 'sweetalert2';
 
 // 狀態變量
 const coupons = ref([]);
@@ -308,7 +312,12 @@ const loadCoupons = async () => {
         totalPages.value = response.totalPages;
     } catch (error) {
         console.error('載入優惠券資料失敗:', error);
-        alert('載入優惠券資料失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '載入失敗',
+            text: '載入優惠券資料失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -336,13 +345,23 @@ const submitCoupon = async () => {
         }
 
         // 顯示成功訊息
-        alert('優惠券新增成功！');
+        await Swal.fire({
+            icon: 'success',
+            title: '新增成功',
+            text: '優惠券已成功新增！',
+            confirmButtonColor: '#2b4f76'
+        });
 
         // 重新載入整個頁面
         window.location.reload();
     } catch (error) {
         console.error('新增優惠券失敗:', error);
-        alert('新增優惠券失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '新增失敗',
+            text: '新增優惠券失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -367,7 +386,12 @@ const editCoupon = async (couponId) => {
         modal.show();
     } catch (error) {
         console.error('獲取優惠券資料失敗:', error);
-        alert('獲取優惠券資料失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '獲取失敗',
+            text: '獲取優惠券資料失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -383,23 +407,55 @@ const handleUpdateCoupon = async () => {
         await updateCoupon(editingCoupon.value.id, couponData);
         $('#editCouponModal').modal('hide');
         loadCoupons();
+        
+        Swal.fire({
+            icon: 'success',
+            title: '更新成功',
+            text: '優惠券已成功更新！',
+            confirmButtonColor: '#2b4f76'
+        });
     } catch (error) {
         console.error('更新優惠券失敗:', error);
-        alert('更新優惠券失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '更新優惠券失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
 const handleDeleteCoupon = async (couponId) => {
-    if (!confirm('確定要刪除該優惠券嗎？此操作無法復原。')) {
-        return;
-    }
+    const result = await Swal.fire({
+        title: '確認刪除',
+        text: '確定要刪除該優惠券嗎？此操作無法復原。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '確認刪除',
+        cancelButtonText: '取消',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    });
 
-    try {
-        await deleteCoupon(couponId);
-        loadCoupons();
-    } catch (error) {
-        console.error('刪除優惠券失敗:', error);
-        alert('刪除優惠券失敗，請稍後再試');
+    if (result.isConfirmed) {
+        try {
+            await deleteCoupon(couponId);
+            loadCoupons();
+            Swal.fire({
+                icon: 'success',
+                title: '刪除成功',
+                text: '優惠券已成功刪除',
+                confirmButtonColor: '#2b4f76'
+            });
+        } catch (error) {
+            console.error('刪除優惠券失敗:', error);
+            Swal.fire({
+                icon: 'error',
+                title: '刪除失敗',
+                text: '刪除優惠券失敗，請稍後再試',
+                confirmButtonColor: '#2b4f76'
+            });
+        }
     }
 };
 
@@ -456,6 +512,29 @@ const nextPage = () => {
         currentPage.value++;
         loadCoupons();
     }
+};
+
+// 新增 Demo 資料填充方法
+const fillDemoData = () => {
+    newCoupon.value = {
+        name: '聖誕節狂歡慶',
+        discountType: false,
+        discountValue: 100,
+        minOrderValue: 1000,
+        limitCount: 2,
+        validStart: '2025-10-30T00:00',
+        validEnd: '2025-12-30T23:59',
+        quantity: 1000,
+        oneTimeUse: true,
+        status: true
+    };
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Demo 資料已載入',
+        text: '請檢查資料是否正確，並可進行修改',
+        confirmButtonColor: '#2b4f76'
+    });
 };
 
 // 生命週期鉤子

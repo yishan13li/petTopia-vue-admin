@@ -176,9 +176,6 @@
                             <button class="btn btn-sm btn-info" @click="editMember(member.memberId)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="deleteMember(member.memberId)">
-                                <i class="bi bi-trash"></i>
-                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -201,6 +198,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 // 狀態變量
 const members = ref([]);
@@ -287,7 +285,11 @@ const toggleAll = () => {
 
 const batchUpdateMembers = async () => {
     if (!batchAction.value || selectedMembers.value.length === 0) {
-        alert('請選擇操作和會員');
+        Swal.fire({
+            icon: 'warning',
+            title: '請選擇操作和會員',
+            confirmButtonColor: '#2b4f76'
+        });
         return;
     }
 
@@ -302,6 +304,12 @@ const batchUpdateMembers = async () => {
         batchAction.value = '';
     } catch (error) {
         console.error('批量更新失敗:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '批量更新失敗',
+            text: error.response?.data || '請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -325,7 +333,12 @@ const editMember = async (memberId) => {
         modal.show();
     } catch (error) {
         console.error('獲取會員資料失敗:', error);
-        alert('獲取會員資料失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '獲取會員資料失敗',
+            text: '請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -382,25 +395,21 @@ const updateMember = async () => {
                 status: 'active'
             };
             
-            alert('會員資料更新成功！');
+            Swal.fire({
+                icon: 'success',
+                title: '更新成功',
+                text: '會員資料已成功更新！',
+                confirmButtonColor: '#2b4f76'
+            });
         }
     } catch (error) {
         console.error('更新會員資料失敗:', error);
-        alert(error.response?.data || '更新會員資料失敗，請稍後再試');
-    }
-};
-
-const deleteMember = async (memberId) => {
-    if (!confirm('確定要刪除該會員嗎？此操作無法復原。')) {
-        return;
-    }
-    
-    try {
-        await axios.delete(`/api/admin/members/${memberId}`);
-        loadMembers();
-    } catch (error) {
-        console.error('刪除會員失敗:', error);
-        alert('刪除會員失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: error.response?.data || '更新會員資料失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
