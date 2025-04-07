@@ -226,15 +226,19 @@
                             {{ new Date(coupon.validEnd).toLocaleString() }}
                         </td>
                         <td>
-                            <span :class="getStatusBadgeClass(coupon.status)">
-                                {{ getStatusText(coupon.status) }}
-                            </span>
+                            <button 
+                                class="btn btn-sm" 
+                                :class="coupon.status ? 'btn-success' : 'btn-danger'"
+                                @click="toggleCouponStatus(coupon.id, coupon.status)"
+                            >
+                                {{ coupon.status ? '已啟用' : '未啟用' }}
+                            </button>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-info" @click="editCoupon(coupon.id)">
+                            <button class="btn btn-sm btn-info me-2" @click="editCoupon(coupon.id)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger ml-2" @click="handleDeleteCoupon(coupon.id)">
+                            <button class="btn btn-sm btn-danger" @click="handleDeleteCoupon(coupon.id)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -425,37 +429,45 @@ const handleUpdateCoupon = async () => {
     }
 };
 
-const handleDeleteCoupon = async (couponId) => {
-    const result = await Swal.fire({
-        title: '確認刪除',
-        text: '確定要刪除該優惠券嗎？此操作無法復原。',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: '確認刪除',
-        cancelButtonText: '取消',
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d'
-    });
+const toggleCouponStatus = async (couponId, currentStatus) => {
+    try {
+        const result = await Swal.fire({
+            title: '確認更改狀態',
+            text: `確定要將優惠券狀態改為${currentStatus ? '未啟用' : '已啟用'}嗎？`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '確認',
+            cancelButtonText: '取消',
+            confirmButtonColor: '#2b4f76',
+            cancelButtonColor: '#6c757d'
+        });
 
-    if (result.isConfirmed) {
-        try {
-            await deleteCoupon(couponId);
+        if (result.isConfirmed) {
+            // 先獲取優惠券的完整資料
+            const coupon = await getCoupon(couponId);
+            // 更新狀態
+            const updatedCoupon = {
+                ...coupon,
+                status: !currentStatus
+            };
+            await updateCoupon(couponId, updatedCoupon);
             loadCoupons();
+            
             Swal.fire({
                 icon: 'success',
-                title: '刪除成功',
-                text: '優惠券已成功刪除',
-                confirmButtonColor: '#2b4f76'
-            });
-        } catch (error) {
-            console.error('刪除優惠券失敗:', error);
-            Swal.fire({
-                icon: 'error',
-                title: '刪除失敗',
-                text: '刪除優惠券失敗，請稍後再試',
+                title: '狀態更新成功',
+                text: `優惠券已${!currentStatus ? '啟用' : '停用'}`,
                 confirmButtonColor: '#2b4f76'
             });
         }
+    } catch (error) {
+        console.error('更新優惠券狀態失敗:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '更新優惠券狀態失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
@@ -535,6 +547,41 @@ const fillDemoData = () => {
         text: '請檢查資料是否正確，並可進行修改',
         confirmButtonColor: '#2b4f76'
     });
+};
+
+// 添加刪除方法
+const handleDeleteCoupon = async (couponId) => {
+    const result = await Swal.fire({
+        title: '確認刪除',
+        text: '確定要刪除該優惠券嗎？此操作無法復原。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '確認刪除',
+        cancelButtonText: '取消',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await deleteCoupon(couponId);
+            loadCoupons();
+            Swal.fire({
+                icon: 'success',
+                title: '刪除成功',
+                text: '優惠券已成功刪除',
+                confirmButtonColor: '#2b4f76'
+            });
+        } catch (error) {
+            console.error('刪除優惠券失敗:', error);
+            Swal.fire({
+                icon: 'error',
+                title: '刪除失敗',
+                text: '刪除優惠券失敗，請稍後再試',
+                confirmButtonColor: '#2b4f76'
+            });
+        }
+    }
 };
 
 // 生命週期鉤子
