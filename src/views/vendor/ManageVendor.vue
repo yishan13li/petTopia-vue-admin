@@ -120,7 +120,7 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import axios from 'axios';
 import DataTable from 'datatables.net-dt'
 import 'datatables.net-dt/css/dataTables.dataTables.css'
-
+import Swal from 'sweetalert2';
 let dataTable = null
 const allcategory = ref([]);
 const searchQuery = ref("");
@@ -279,22 +279,38 @@ const toggleVendorStatus = async (vendor) => {
         if (response.status === 200) {
             // 更新成功後，直接在前端切換狀態
             vendor.status = newStatus;
-            alert(response.data); // 提示更新成功
+            Swal.fire({
+                icon: 'success',
+                title: '更新成功',
+                text: response.data, // 顯示從後端返回的提示訊息
+            });
         }
     } catch (error) {
         console.error('Error updating vendor status:', error);
-        alert('更新失敗');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '請稍後再試',
+        });
     }
 };
 
 
 const batchUpdateVendors = async () => {
     if (selectedVendors.value.length === 0) {
-        alert("請選擇至少一個商家");
+        Swal.fire({
+            icon: 'warning',
+            title: '請選擇至少一個商家',
+            confirmButtonText: 'OK'
+        });
         return;
     }
     if (!batchStatus.value) {
-        alert("請選擇狀態");
+        Swal.fire({
+            icon: 'warning',
+            title: '請選擇狀態',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
@@ -307,7 +323,11 @@ const batchUpdateVendors = async () => {
     const vendorsToUpdate = selectedVendorData.filter(vendor => vendor.status !== targetStatus);
 
     if (vendorsToUpdate.length === 0) {
-        alert(`所選商家狀態已經是「${batchStatus.value}」，無需更新！`);
+        Swal.fire({
+            icon: 'info',
+            title: `所選商家狀態已經是「${batchStatus.value}」，無需更新！`,
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
@@ -317,12 +337,22 @@ const batchUpdateVendors = async () => {
             status: targetStatus
         };
         const response = await axios.put(`${VITE_API_URL}/api/admin/vendors/status/bulk`, requestData);
-        alert(response.data);
+        Swal.fire({
+            icon: 'success',
+            title: '更新成功',
+            text: response.data,
+            confirmButtonText: 'OK'
+        });
         fetchVendors(); // 重新載入數據
         selectedVendors.value = [];
     } catch (error) {
         console.error('Error updating vendors:', error);
-        alert('更新失敗');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '請稍後再試',
+            confirmButtonText: 'OK'
+        });
     }
 };
 
@@ -330,11 +360,23 @@ const batchUpdateVendors = async () => {
 
 const updateAllVendors = async (status) => {
     if (vendors.value.length === 0) {
-        alert("目前沒有商家資料");
+        Swal.fire({
+            icon: 'warning',
+            title: '沒有商家資料',
+            text: '目前沒有商家資料',
+        });
         return;
     }
 
-    if (!confirm(`確定要將所有商家狀態改為「${status}」嗎？`)) {
+    const result = await Swal.fire({
+        title: `確定要將所有商家狀態改為「${status}」嗎？`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+    });
+
+    if (!result.isConfirmed) {
         return;
     }
 
@@ -345,7 +387,12 @@ const updateAllVendors = async (status) => {
         };
 
         const response = await axios.put(`${VITE_API_URL}/api/admin/vendors/status/bulk`, requestData);
-        alert(response.data);
+
+        Swal.fire({
+            icon: 'success',
+            title: '更新成功',
+            text: response.data,
+        });
 
         if (!dataTable) return;
 
@@ -360,7 +407,11 @@ const updateAllVendors = async (status) => {
         });
     } catch (error) {
         console.error('Error updating vendors:', error);
-        alert('更新失敗');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '請稍後再試',
+        });
     }
 };
 

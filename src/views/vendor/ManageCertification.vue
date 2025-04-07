@@ -88,7 +88,7 @@ import { ref, computed, onMounted, nextTick } from 'vue';
 import axios from 'axios';
 import DataTable from 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
-
+import Swal from 'sweetalert2';
 let dataTable = null;
 const showModal = ref(false);
 const reason = ref('');
@@ -126,7 +126,11 @@ const closeModal = () => {
 // 提交状态更新
 const submitCertificationStatus = async () => {
     if (!reason.value) {
-        alert('請輸入原因');
+        Swal.fire({
+            icon: 'error',
+            title: '錯誤',
+            text: '請輸入原因',
+        });
         return;
     }
 
@@ -140,14 +144,22 @@ const submitCertificationStatus = async () => {
         });
 
         // 更新认证状态后关闭模态框
-        alert('更新成功');
-        closeModal();
-        // 重新获取数据，或者根据你的逻辑刷新认证列表
-        await getCertificationsWithTags();
-        initializeDataTable();
+        Swal.fire({
+            icon: 'success',
+            title: '更新成功',
+            text: '商家認證狀態已更新',
+        }).then(() => {
+            closeModal();
+            getCertificationsWithTags(); // 重新加载认证数据
+            initializeDataTable(); // 重新初始化表格
+        });
     } catch (error) {
         console.error('更新失敗:', error);
-        alert('更新失敗');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: '請稍後再試。',
+        });
     }
 };
 
