@@ -124,7 +124,11 @@
                     <tr v-for="product in productList" :key="product.id">
                         <td><input type="checkbox" v-model="selectedProducts" :value="product.id"
                                 @change="onChangeClickBox"></td>
-                        <td :class="{ 'text-danger': !product.status }">{{ product.status ? "上架" : "下架" }}</td>
+                        <td>
+                            <span :class="product.status ? 'badge bg-success' : 'badge bg-danger'">
+                                {{ product.status ? "上架" : "下架" }}
+                            </span>
+                        </td>
                         <td>{{ product.productDetail.name }}</td>
                         <td>{{ product.productSize?.name ?? "-" }}</td>
                         <td>{{ product.productColor?.name ?? "-" }}</td>
@@ -461,4 +465,9 @@ function deleteProduct(productId) {
 
 </script>
 
-<style></style>
+<style>
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+}
+</style>
