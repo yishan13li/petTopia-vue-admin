@@ -176,9 +176,6 @@
                             <button class="btn btn-sm btn-info" @click="editMember(member.memberId)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="deleteMember(member.memberId)">
-                                <i class="bi bi-trash"></i>
-                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -201,6 +198,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 // 狀態變量
 const members = ref([]);
@@ -287,7 +285,11 @@ const toggleAll = () => {
 
 const batchUpdateMembers = async () => {
     if (!batchAction.value || selectedMembers.value.length === 0) {
-        alert('請選擇操作和會員');
+        Swal.fire({
+            icon: 'warning',
+            title: '請選擇操作和會員',
+            confirmButtonColor: '#2b4f76'
+        });
         return;
     }
 
@@ -302,56 +304,71 @@ const batchUpdateMembers = async () => {
         batchAction.value = '';
     } catch (error) {
         console.error('批量更新失敗:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '批量更新失敗',
+            text: error.response?.data || '請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
 const editMember = async (memberId) => {
     try {
-        const response = await axios.get(`/api/admin/members/${memberId}`);
-        const memberData = response.data;
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/admin/members/${memberId}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            }
+        );
         
+        const memberData = response.data;
+        console.log('獲取的會員資料:', memberData); // 添加日誌以便調試
+        
+        // 格式化生日日期
+        const formattedBirthday = memberData.birthdate 
+            ? new Date(memberData.birthdate).toISOString().split('T')[0]
+            : '';
+        
+        // 更新編輯表單資料
         editingMember.value = {
             id: memberId,
-            name: memberData.member?.name || '',
-            email: memberData.email,
-            phone: memberData.member?.phone || '',
-            birthday: memberData.member?.birthdate || '',
-            address: memberData.member?.address || '',
+            name: memberData.name || '',
+            email: memberData.email || '',
+            phone: memberData.phone || '',
+            birthday: formattedBirthday,
+            address: memberData.address || '',
             status: memberData.emailVerified ? 'active' : 'inactive'
         };
+        
+        console.log('預填的表單資料:', editingMember.value); // 添加日誌以便調試
         
         // 顯示編輯 Modal
         const modal = new bootstrap.Modal(document.getElementById('editMemberModal'));
         modal.show();
     } catch (error) {
         console.error('獲取會員資料失敗:', error);
-        alert('獲取會員資料失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '獲取會員資料失敗',
+            text: error.response?.data || '請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
 const updateMember = async () => {
     try {
-        const updateData = {};
-        
-        // 只發送有修改的欄位
-        if (editingMember.value.name && editingMember.value.name.trim() !== '') {
-            updateData.name = editingMember.value.name;
-        }
-        if (editingMember.value.email && editingMember.value.email.trim() !== '') {
-            updateData.email = editingMember.value.email;
-        }
-        if (editingMember.value.phone && editingMember.value.phone.trim() !== '') {
-            updateData.phone = editingMember.value.phone;
-        }
-        if (editingMember.value.birthday && editingMember.value.birthday.trim() !== '') {
-            updateData.birthdate = editingMember.value.birthday;
-        }
-        if (editingMember.value.address && editingMember.value.address.trim() !== '') {
-            updateData.address = editingMember.value.address;
-        }
-        if (editingMember.value.status !== undefined) {
-            updateData.emailVerified = editingMember.value.status === 'active';
-        }
+        const updateData = {
+            name: editingMember.value.name,
+            email: editingMember.value.email,
+            phone: editingMember.value.phone,
+            birthdate: editingMember.value.birthday,
+            address: editingMember.value.address,
+            emailVerified: editingMember.value.status === 'active'
+        };
 
         const response = await axios.put(
             `${import.meta.env.VITE_API_URL}/api/admin/members/${editingMember.value.id}`,
@@ -371,36 +388,21 @@ const updateMember = async () => {
             // 重新載入會員列表
             loadMembers();
             
-            // 清空編輯資料
-            editingMember.value = {
-                id: null,
-                name: '',
-                email: '',
-                phone: '',
-                birthday: '',
-                address: '',
-                status: 'active'
-            };
-            
-            alert('會員資料更新成功！');
+            Swal.fire({
+                icon: 'success',
+                title: '更新成功',
+                text: '會員資料已成功更新！',
+                confirmButtonColor: '#2b4f76'
+            });
         }
     } catch (error) {
         console.error('更新會員資料失敗:', error);
-        alert(error.response?.data || '更新會員資料失敗，請稍後再試');
-    }
-};
-
-const deleteMember = async (memberId) => {
-    if (!confirm('確定要刪除該會員嗎？此操作無法復原。')) {
-        return;
-    }
-    
-    try {
-        await axios.delete(`/api/admin/members/${memberId}`);
-        loadMembers();
-    } catch (error) {
-        console.error('刪除會員失敗:', error);
-        alert('刪除會員失敗，請稍後再試');
+        Swal.fire({
+            icon: 'error',
+            title: '更新失敗',
+            text: error.response?.data || '更新會員資料失敗，請稍後再試',
+            confirmButtonColor: '#2b4f76'
+        });
     }
 };
 
