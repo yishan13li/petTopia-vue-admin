@@ -163,6 +163,8 @@ import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, Li
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { getSalesData, getCategorySales } from '@/api/shop/orderApi';
 
+const URL = import.meta.env.VITE_API_URL;
+
 const totalOrders = ref(0);
 const totalMembers = ref(0);
 const totalVendors = ref(0);
@@ -184,7 +186,7 @@ const getStatusClass = (status) => {
 
 const fetchDashboardStats = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/admin/dashboard/stats');
+    const response = await axios.get(`${URL}/api/admin/dashboard/stats`);
     const stats = response.data;
 
     totalOrders.value = stats.totalOrders;
